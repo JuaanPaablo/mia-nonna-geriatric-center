@@ -101,8 +101,13 @@ export function Footer() {
           {/* Company info */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">MN</span>
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-r from-primary to-secondary">
+                <img
+                  src="/images/nonna.jpg"
+                  alt="Logo Mia Nonna"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-bold">Mia Nonna</h3>
@@ -111,16 +116,21 @@ export function Footer() {
             </div>
             
             <p className="text-gray-300 leading-relaxed">
-              Desde 2010, brindamos cuidado profesional y cariñoso a personas mayores, 
+              Brindamos cuidado profesional y cariñoso a personas mayores, 
               creando un ambiente familiar donde cada residente se sienta como en casa.
             </p>
 
             {/* Contact info */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
+              <a 
+                href="https://wa.me/593998313608" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 hover:text-primary transition-colors"
+              >
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-300">+34 912 345 678</span>
-              </div>
+                <span className="text-gray-300">+593 99 831 3608</span>
+              </a>
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
                 <span className="text-gray-300">info@mianonna.com</span>
@@ -220,42 +230,6 @@ export function Footer() {
             </ul>
           </div>
         </div>
-
-        {/* Certifications */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <h4 className="text-lg font-semibold mb-6 text-center">Certificaciones y Reconocimientos</h4>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {certifications.map((cert, index) => (
-              <div key={index} className="text-center">
-                <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center">
-                  <cert.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h5 className="font-semibold text-sm mb-1">{cert.title}</h5>
-                <p className="text-gray-400 text-xs">{cert.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Newsletter signup */}
-        <div className="mt-12 pt-8 border-t border-gray-800">
-          <div className="max-w-md mx-auto text-center">
-            <h4 className="text-lg font-semibold mb-2">Mantente informado</h4>
-            <p className="text-gray-400 text-sm mb-4">
-              Recibe noticias y consejos sobre el cuidado de personas mayores
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="tu.email@ejemplo.com"
-                className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              />
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg text-sm font-medium transition-colors duration-200">
-                Suscribirse
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Bottom footer */}
@@ -263,10 +237,7 @@ export function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-gray-400 text-sm text-center md:text-left">
-              <p>© 2024 Mia Nonna Centro Geriátrico. Todos los derechos reservados.</p>
-              <p className="mt-1">
-                Registro Sanitario: RS-28-001234 | NIF: B-12345678
-              </p>
+              <p>© 2025 Mia Nonna Centro Geriátrico. Todos los derechos reservados.</p>
             </div>
             
             <div className="flex items-center gap-6 text-gray-400 text-sm">
@@ -284,7 +255,7 @@ export function Footer() {
           
           <div className="mt-4 pt-4 border-t border-gray-800 text-center">
             <p className="text-gray-500 text-xs">
-              Desarrollado con <Heart className="h-3 w-3 inline text-red-500" /> para el cuidado de nuestros mayores
+              Desarrollado por <a href="https://www.ionoshub.net/" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors duration-200">ionoshub.net</a>
             </p>
           </div>
         </div>

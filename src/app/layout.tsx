@@ -119,7 +119,7 @@ export default function RootLayout({
               "url": "https://mianonna.com",
               "logo": "https://mianonna.com/logo.png",
               "image": "https://mianonna.com/og-image.jpg",
-              "telephone": "+34912345678",
+              "telephone": "+593998313608",
               "email": "info@mianonna.com",
               "address": {
                 "@type": "PostalAddress",

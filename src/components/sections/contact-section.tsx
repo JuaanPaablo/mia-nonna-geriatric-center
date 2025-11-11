@@ -29,14 +29,14 @@ const contactInfo = [
   {
     icon: Phone,
     title: 'Teléfono',
-    value: '+34 912 345 678',
+    value: '+593 99 831 3608',
     description: 'Atención telefónica 24/7',
-    action: 'tel:+34912345678'
+    action: 'whatsapp'
   },
   {
     icon: MessageCircle,
     title: 'WhatsApp',
-    value: '+34 612 345 678',
+    value: '+593 99 831 3608',
     description: 'Respuesta inmediata',
     action: 'whatsapp'
   },
@@ -47,34 +47,19 @@ const contactInfo = [
     description: 'Respuesta en 24h',
     action: 'mailto:info@mianonna.com'
   },
-  {
-    icon: MapPin,
-    title: 'Ubicación',
-    value: 'Calle de la Salud, 123',
-    description: '28001 Madrid, España',
-    action: 'maps'
-  }
 ]
 
 const schedule = [
   {
     icon: Users,
     title: 'Visitas',
-    hours: 'Lunes a Domingo: 10:00 - 20:00',
-    note: 'Cita previa recomendada'
+    hours: 'Lunes a Viernes: 8:00AM - 5:00PM',
   },
   {
     icon: Phone,
     title: 'Atención telefónica',
-    hours: 'Lunes a Viernes: 8:00 - 22:00',
-    note: 'Sábados y Domingos: 9:00 - 21:00'
+    hours: 'Lunes a Viernes: 8:00AM - 5:00PM',
   },
-  {
-    icon: Calendar,
-    title: 'Urgencias médicas',
-    hours: '24 horas, 7 días a la semana',
-    note: 'Personal médico siempre disponible'
-  }
 ]
 
 const careTypes = [
@@ -122,7 +107,7 @@ export function ContactSection() {
 
   const handleWhatsAppContact = () => {
     const message = `Hola, me interesa conocer más sobre los servicios de Mia Nonna para ${watchedValues.residentName || 'mi familiar'}.`
-    const whatsappUrl = generateWhatsAppUrl('+34612345678', message)
+    const whatsappUrl = generateWhatsAppUrl('593998313608', message)
     window.open(whatsappUrl, '_blank')
   }
 
@@ -183,33 +168,37 @@ export function ContactSection() {
             {contactInfo.map((info, index) => (
               <Card key={index} className="group hover:shadow-md transition-all duration-300">
                 <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg group-hover:from-primary/20 group-hover:to-secondary/20 transition-all duration-300">
-                      <info.icon className="h-5 w-5 text-primary" />
+                  <a
+                    href="https://wa.me/593998313608"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg group-hover:from-primary/20 group-hover:to-secondary/20 transition-all duration-300">
+                        <info.icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-1">
+                          {info.title}
+                        </h4>
+                        <p className="text-gray-900 font-medium mb-1">
+                          {info.value}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {info.description}
+                        </p>
+                        {info.action === 'whatsapp' && (
+                          <div className="mt-2">
+                            <span className="inline-flex items-center text-sm text-primary font-medium">
+                              <MessageCircle className="h-3 w-3 mr-2" />
+                              Contactar ahora
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 mb-1">
-                        {info.title}
-                      </h4>
-                      <p className="text-gray-900 font-medium mb-1">
-                        {info.value}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {info.description}
-                      </p>
-                      {info.action === 'whatsapp' && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="mt-2 w-full"
-                          onClick={handleWhatsAppContact}
-                        >
-                          <MessageCircle className="h-3 w-3 mr-2" />
-                          Contactar ahora
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  </a>
                 </CardContent>
               </Card>
             ))}
@@ -232,7 +221,6 @@ export function ContactSection() {
                       </h5>
                     </div>
                     <p className="text-sm text-gray-900 mb-1">{item.hours}</p>
-                    <p className="text-xs text-gray-600">{item.note}</p>
                   </div>
                 ))}
               </CardContent>
@@ -277,7 +265,7 @@ export function ContactSection() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+34 XXX XXX XXX"
+                        placeholder="+593 9XX XXX XXX"
                         {...register('phone')}
                       />
                       {errors.phone && (
@@ -428,21 +416,6 @@ export function ContactSection() {
               </CardContent>
             </Card>
           </div>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 lg:p-12 text-white text-center">
-          <Heart className="h-12 w-12 mx-auto mb-4 opacity-80" />
-          <h3 className="text-2xl lg:text-3xl font-bold mb-4">
-            Tu tranquilidad es nuestra prioridad
-          </h3>
-          <p className="text-lg mb-6 max-w-2xl mx-auto opacity-90">
-            En Mia Nonna entendemos lo importante que es para ti encontrar el mejor cuidado 
-            para tu ser querido. Estamos aquí para acompañarte en cada paso del proceso.
-          </p>
-          <p className="text-sm opacity-80">
-            📞 Llamadas disponibles 24/7 • 📱 WhatsApp con respuesta inmediata • 📧 Email con respuesta en 24h
-          </p>
         </div>
       </div>
     </section>

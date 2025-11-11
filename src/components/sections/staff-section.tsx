@@ -83,32 +83,6 @@ const departments = [
   }
 ]
 
-const stats = [
-  {
-    icon: Users,
-    number: '50+',
-    label: 'Profesionales',
-    description: 'Equipo multidisciplinar'
-  },
-  {
-    icon: GraduationCap,
-    number: '100%',
-    label: 'Formación',
-    description: 'Personal certificado'
-  },
-  {
-    icon: Award,
-    number: '15+',
-    label: 'Años',
-    description: 'Experiencia media'
-  },
-  {
-    icon: Clock,
-    number: '24/7',
-    label: 'Disponibilidad',
-    description: 'Atención continua'
-  }
-]
 
 export function StaffSection() {
   return (
@@ -126,26 +100,6 @@ export function StaffSection() {
             Contamos con un equipo multidisciplinar de profesionales especializados en geriatría, 
             comprometidos con proporcionar el mejor cuidado y atención personalizada.
           </p>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full flex items-center justify-center">
-                <stat.icon className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
-                {stat.number}
-              </div>
-              <div className="font-semibold text-gray-800 mb-1">
-                {stat.label}
-              </div>
-              <div className="text-sm text-gray-600">
-                {stat.description}
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Leadership team */}
@@ -216,113 +170,6 @@ export function StaffSection() {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-
-        {/* Departments */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
-            Departamentos Especializados
-          </h3>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {departments.map((dept, index) => (
-              <Card key={index} className="group hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-4 rounded-xl ${dept.color} group-hover:scale-110 transition-transform duration-300`}>
-                      <dept.icon className="h-8 w-8" />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-xl font-semibold text-gray-900">
-                          {dept.name}
-                        </h4>
-                        <Badge variant="secondary">
-                          {dept.count} profesionales
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-4">
-                        {dept.description}
-                      </p>
-                      
-                      <div>
-                        <h5 className="font-semibold text-gray-900 text-sm mb-2">Especialidades:</h5>
-                        <div className="flex flex-wrap gap-1">
-                          {dept.specialties.map((specialty, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
-                              {specialty}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Certifications and training */}
-        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-8 lg:p-12 mb-16">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Formación Continua y Certificaciones
-            </h3>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Nuestro compromiso con la excelencia nos lleva a mantener al equipo en constante formación 
-              y actualización de conocimientos.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="space-y-2">
-              <div className="w-12 h-12 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                <GraduationCap className="h-6 w-6 text-primary" />
-              </div>
-              <h4 className="font-semibold text-gray-900">Formación Anual</h4>
-              <p className="text-sm text-gray-600">120+ horas de formación por profesional</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="w-12 h-12 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-                <Award className="h-6 w-6 text-green-600" />
-              </div>
-              <h4 className="font-semibold text-gray-900">Certificaciones</h4>
-              <p className="text-sm text-gray-600">ISO 9001 y certificaciones profesionales</p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="w-12 h-12 mx-auto bg-purple-100 rounded-full flex items-center justify-center">
-                <Users className="h-6 w-6 text-purple-600" />
-              </div>
-              <h4 className="font-semibold text-gray-900">Trabajo en Equipo</h4>
-              <p className="text-sm text-gray-600">Reuniones multidisciplinares semanales</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Contact team CTA */}
-        <div className="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 lg:p-12 text-white text-center">
-          <h3 className="text-2xl lg:text-3xl font-bold mb-4">
-            ¿Quieres conocer a nuestro equipo?
-          </h3>
-          <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
-            Te invitamos a conocer personalmente a los profesionales que cuidarán de tu ser querido. 
-            Agenda una cita para resolver todas tus dudas.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="secondary" size="lg">
-              <Phone className="h-4 w-4 mr-2" />
-              Llamar ahora
-            </Button>
-            <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-              <Mail className="h-4 w-4 mr-2" />
-              Enviar consulta
-            </Button>
           </div>
         </div>
       </div>

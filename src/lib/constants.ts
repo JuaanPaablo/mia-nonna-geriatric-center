@@ -6,9 +6,9 @@ export const APP_INFO = {
   author: 'Mia Nonna Team',
   website: 'https://mianonna.com',
   contact: {
-    phone: '+34 912 345 678',
+    phone: '+593 99 831 3608',
     email: 'info@mianonna.com',
-    whatsapp: '+34 612 345 678',
+    whatsapp: '+593 99 831 3608',
     address: 'Calle de la Salud, 123, 28001 Madrid, España',
   },
   socialMedia: {
@@ -311,7 +311,7 @@ export const VALIDATION = {
   MAX_TEXTAREA_LENGTH: 1000,
   MIN_AGE: 0,
   MAX_AGE: 150,
-  PHONE_REGEX: /^(\+34|34)?[6-9]\d{8}$/,
+  PHONE_REGEX: /^(\+593|593)?[0-9]{9}$/,
   EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   DNI_REGEX: /^\d{8}[A-Z]$/,
 } as const

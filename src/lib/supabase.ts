@@ -1,12 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Verificar variables de entorno de manera más robusta
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-// Solo crear el cliente si las variables están disponibles
-export const supabase = supabaseUrl && supabaseAnonKey 
+// Función helper para validar URL
+const isValidUrl = (url: string | undefined): boolean => {
+  if (!url || url === '' || url.includes('tu-') || url.includes('aqui')) {
+    return false;
+  }
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Validar que las variables estén configuradas correctamente
+const hasValidConfig = isValidUrl(supabaseUrl) && supabaseAnonKey && supabaseAnonKey.length > 0;
+
+// Solo crear el cliente si las variables están disponibles y son válidas
+export const supabase = hasValidConfig && supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
@@ -17,7 +33,7 @@ export const supabase = supabaseUrl && supabaseAnonKey
   : null;
 
 // Server client with service role key (for admin operations)
-export const supabaseAdmin = supabaseUrl && supabaseServiceKey
+export const supabaseAdmin = hasValidConfig && supabaseUrl && supabaseServiceKey && supabaseServiceKey.length > 0
   ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -65,14 +81,17 @@ export const signUpWithEmail = async (email: string, password: string, metadata?
 
 // Cliente para operaciones del servidor (con service role key)
 export const createServerClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase environment variables for server client');
+  if (!isValidUrl(url) || !serviceKey || serviceKey.length === 0) {
+    throw new Error(
+      'Missing or invalid Supabase environment variables for server client. ' +
+      'Please check your .env.local file and ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set correctly.'
+    );
   }
   
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  return createClient(url, serviceKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

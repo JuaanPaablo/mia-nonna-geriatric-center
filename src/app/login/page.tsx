@@ -22,8 +22,19 @@ export default function LoginPage() {
 
   const checkUser = async () => {
     try {
-      const { data: { session } } = await supabase?.auth.getSession() || {}
-      if (session) {
+      if (!supabase) {
+        console.warn('Supabase client not initialized')
+        return
+      }
+      
+      const { data, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        console.error('Error checking session:', error)
+        return
+      }
+      
+      if (data?.session) {
         router.push('/admin')
       }
     } catch (error) {
@@ -44,10 +55,14 @@ export default function LoginPage() {
     setSuccess('')
 
     try {
-      const { data, error } = await supabase?.auth.signInWithPassword({
+      if (!supabase) {
+        throw new Error('Supabase client not initialized. Please check your environment variables.')
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
-      }) || {}
+      })
 
       if (error) {
         throw error
@@ -60,14 +75,36 @@ export default function LoginPage() {
         }, 1500)
       }
     } catch (error: any) {
-      console.error('Login error:', error)
+      // Detectar errores de credenciales inválidas (el más común)
+      // Incluye "Email not confirmed" porque Supabase puede devolverlo cuando la contraseña es incorrecta
+      const isInvalidCredentials = 
+        error.message?.includes('Invalid login credentials') ||
+        error.message?.includes('Invalid credentials') ||
+        error.message?.includes('Email not confirmed') ||
+        (error.status === 400 && error.message?.toLowerCase().includes('invalid')) ||
+        error.code === 'invalid_credentials'
       
-      if (error.message.includes('Invalid login credentials')) {
-        setError('Credenciales inválidas. Verifica tu email y contraseña.')
-      } else if (error.message.includes('Email not confirmed')) {
-        setError('Por favor confirma tu email antes de iniciar sesión.')
+      // Detectar errores de configuración (solo si no es un error de credenciales)
+      const isConfigError = 
+        !isInvalidCredentials && (
+          error.message?.includes('not initialized') ||
+          error.message?.includes('Invalid API key') ||
+          (error.status === 400 && error.message?.includes('API'))
+        )
+      
+      // Solo loguear errores importantes en consola (no errores de credenciales comunes)
+      if (!isInvalidCredentials) {
+        console.error('Login error:', error)
+      }
+      
+      if (isInvalidCredentials) {
+        // Mensaje genérico y amigable para errores de credenciales
+        setError('El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.')
+      } else if (isConfigError) {
+        setError('Error de configuración: Verifica que las variables de entorno de Supabase estén configuradas correctamente en .env.local')
       } else {
-        setError('Error al iniciar sesión. Intenta nuevamente.')
+        // Mensaje genérico para otros errores
+        setError('No se pudo iniciar sesión. Por favor, intenta nuevamente.')
       }
     } finally {
       setLoading(false)
@@ -83,10 +120,14 @@ export default function LoginPage() {
     setSuccess('')
 
     try {
-      const { data, error } = await supabase?.auth.signInWithPassword({
+      if (!supabase) {
+        throw new Error('Supabase client not initialized. Please check your environment variables.')
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: 'admin@mianonna.com',
         password: 'admin123'
-      }) || {}
+      })
 
       if (error) {
         throw error
@@ -99,8 +140,25 @@ export default function LoginPage() {
         }, 1500)
       }
     } catch (error: any) {
-      console.error('Demo login error:', error)
-      setError('Error al iniciar sesión con credenciales de demo.')
+      // Detectar errores de credenciales inválidas
+      // Incluye "Email not confirmed" porque Supabase puede devolverlo cuando la contraseña es incorrecta
+      const isInvalidCredentials = 
+        error.message?.includes('Invalid login credentials') ||
+        error.message?.includes('Invalid credentials') ||
+        error.message?.includes('Email not confirmed') ||
+        (error.status === 400 && error.message?.toLowerCase().includes('invalid')) ||
+        error.code === 'invalid_credentials'
+      
+      // Solo loguear errores importantes en consola (no errores de credenciales comunes)
+      if (!isInvalidCredentials) {
+        console.error('Demo login error:', error)
+      }
+      
+      if (isInvalidCredentials) {
+        setError('El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.')
+      } else {
+        setError('No se pudo iniciar sesión. Por favor, intenta nuevamente.')
+      }
     } finally {
       setLoading(false)
     }

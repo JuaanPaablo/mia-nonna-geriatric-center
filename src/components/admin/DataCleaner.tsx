@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, AlertTriangle, CheckCircle, Database, Users, FileText, MessageSquare, Settings } from 'lucide-react'
+import { Trash2, AlertTriangle, CheckCircle, Database, Users, FileText, MessageSquare, Settings, Folder, Archive } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+
+const STORAGE_BUCKET = 'patient-forms'
 
 interface DataCleanerProps {
   onDataCleared?: () => void
@@ -14,34 +16,58 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
   const [step, setStep] = useState<'confirm' | 'cleaning' | 'success'>('confirm')
   const [selectedTables, setSelectedTables] = useState({
     patients: true,
-    enrollments: true,
+    patient_forms: true,
     contacts: true,
-    services: true
+    storage_files: true
   })
 
   // Contar registros en cada tabla
   const [counts, setCounts] = useState({
     patients: 0,
-    enrollments: 0,
+    patient_forms: 0,
     contacts: 0,
-    services: 0
+    storage_files: 0
   })
+
+  // Tablas disponibles (solo las que existen)
+  const availableTables = ['patients', 'patient_forms', 'contacts', 'storage_files']
 
   // Cargar conteos al abrir
   const loadCounts = async () => {
     try {
-      const [patientsResult, enrollmentsResult, contactsResult, servicesResult] = await Promise.all([
+      const [patientsResult, patientFormsResult, contactsResult, storageFilesResult] = await Promise.all([
         supabase?.from('patients').select('*', { count: 'exact', head: true }),
-        supabase?.from('enrollments').select('*', { count: 'exact', head: true }),
+        supabase?.from('patient_forms').select('*', { count: 'exact', head: true }),
         supabase?.from('contact_forms').select('*', { count: 'exact', head: true }),
-        supabase?.from('services').select('*', { count: 'exact', head: true })
+        supabase?.storage.from(STORAGE_BUCKET).list('', { limit: 1, offset: 0 })
       ])
+
+      // Contar archivos en Storage
+      let storageCount = 0
+      if (storageFilesResult && !storageFilesResult.error) {
+        // Listar todos los archivos recursivamente
+        const listAllFiles = async (path: string = ''): Promise<number> => {
+          const { data, error } = await supabase?.storage.from(STORAGE_BUCKET).list(path, { limit: 1000 }) || { data: null, error: null }
+          if (error || !data) return 0
+          
+          let count = data.filter(item => item.id).length // Solo archivos, no carpetas
+          
+          // Contar archivos en subcarpetas
+          const folders = data.filter(item => !item.id)
+          for (const folder of folders) {
+            count += await listAllFiles(path ? `${path}/${folder.name}` : folder.name)
+          }
+          
+          return count
+        }
+        storageCount = await listAllFiles()
+      }
 
       setCounts({
         patients: patientsResult?.count || 0,
-        enrollments: enrollmentsResult?.count || 0,
+        patient_forms: patientFormsResult?.count || 0,
         contacts: contactsResult?.count || 0,
-        services: servicesResult?.count || 0
+        storage_files: storageCount
       })
     } catch (error) {
       console.error('Error loading counts:', error)
@@ -55,30 +81,141 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
     loadCounts()
   }
 
+  // Limpiar archivos del Storage recursivamente
+  const cleanStorageFiles = async (path: string = ''): Promise<void> => {
+    if (!supabase) return
+
+    try {
+      const { data, error } = await supabase.storage.from(STORAGE_BUCKET).list(path, { limit: 1000 })
+      
+      if (error) {
+        // Si el bucket no existe, no hay problema
+        if (error.message.includes('not found')) return
+        throw error
+      }
+
+      if (!data || data.length === 0) return
+
+      // Separar archivos y carpetas
+      const files = data.filter(item => item.id).map(item => path ? `${path}/${item.name}` : item.name)
+      const folders = data.filter(item => !item.id)
+
+      // Eliminar archivos
+      if (files.length > 0) {
+        const { error: deleteError } = await supabase.storage.from(STORAGE_BUCKET).remove(files)
+        if (deleteError && !deleteError.message.includes('not found')) {
+          console.warn('Error deleting files:', deleteError)
+        }
+      }
+
+      // Limpiar subcarpetas recursivamente
+      for (const folder of folders) {
+        await cleanStorageFiles(path ? `${path}/${folder.name}` : folder.name)
+      }
+    } catch (error: any) {
+      // Si el bucket no existe, no es un error crítico
+      if (error.message?.includes('not found')) {
+        console.log('Bucket no existe, saltando limpieza de Storage')
+        return
+      }
+      throw error
+    }
+  }
+
   // Limpiar datos seleccionados
   const cleanData = async () => {
     setStep('cleaning')
     setLoading(true)
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       const tablesToClean = Object.entries(selectedTables)
         .filter(([_, selected]) => selected)
         .map(([table]) => table)
+
+      // Si se seleccionan pacientes, también eliminar formularios y archivos asociados
+      if (selectedTables.patients) {
+        // Obtener todos los pacientes antes de eliminarlos para limpiar sus archivos
+        const { data: patientsData } = await supabase
+          .from('patients')
+          .select('id')
+        
+        // Obtener todos los formularios para eliminar sus archivos
+        const { data: formsData } = await supabase
+          .from('patient_forms')
+          .select('file_url')
+          .not('file_url', 'is', null)
+
+        // Eliminar archivos de Storage asociados a los formularios
+        if (formsData && formsData.length > 0 && supabase) {
+          const filePaths = formsData
+            .map(form => form.file_url)
+            .filter((url): url is string => url !== null && typeof url === 'string')
+          
+          if (filePaths.length > 0) {
+            try {
+              await supabase.storage.from(STORAGE_BUCKET).remove(filePaths)
+            } catch (storageError: any) {
+              // Si el bucket no existe, no es crítico
+              if (!storageError.message?.includes('not found')) {
+                console.warn('Error eliminando archivos de Storage:', storageError)
+              }
+            }
+          }
+        }
+
+        // Eliminar formularios de pacientes (tienen foreign key)
+        const { error: formsError } = await supabase
+          .from('patient_forms')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000')
+        
+        if (formsError) {
+          console.warn('Error eliminando formularios:', formsError)
+        }
+
+        // Eliminar pacientes
+        const { error: patientsError } = await supabase
+          .from('patients')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000')
+        
+        if (patientsError) throw patientsError
+      }
 
       // Limpiar cada tabla seleccionada
       for (const table of tablesToClean) {
         switch (table) {
           case 'patients':
-            await supabase?.from('patients').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            // Ya se limpió arriba si estaba seleccionado
             break
-          case 'enrollments':
-            await supabase?.from('enrollments').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+          case 'patient_forms':
+            if (!selectedTables.patients) {
+              // Solo limpiar formularios si no se están limpiando pacientes
+              const { error } = await supabase
+                .from('patient_forms')
+                .delete()
+                .neq('id', '00000000-0000-0000-0000-000000000000')
+              if (error) throw error
+            }
             break
           case 'contacts':
-            await supabase?.from('contact_forms').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+            const { error: contactsError } = await supabase
+              .from('contact_forms')
+              .delete()
+              .neq('id', '00000000-0000-0000-0000-000000000000')
+            if (contactsError) throw contactsError
             break
-          case 'services':
-            await supabase?.from('services').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+          case 'storage_files':
+            // Limpiar todos los archivos del bucket
+            await cleanStorageFiles()
+            break
+          default:
+            // Ignorar tablas que no existen
+            console.warn(`Tabla ${table} no existe o no está disponible para limpieza`)
             break
         }
       }
@@ -92,9 +229,9 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
         setStep('confirm')
       }, 3000)
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error cleaning data:', error)
-      alert('Error al limpiar los datos. Revisa la consola para más detalles.')
+      alert(`Error al limpiar los datos: ${error.message || 'Error desconocido'}. Revisa la consola para más detalles.`)
       setStep('confirm')
     } finally {
       setLoading(false)
@@ -118,9 +255,9 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
   const getTableIcon = (table: string) => {
     switch (table) {
       case 'patients': return <Users className="w-4 h-4" />
-      case 'enrollments': return <FileText className="w-4 h-4" />
+      case 'patient_forms': return <FileText className="w-4 h-4" />
       case 'contacts': return <MessageSquare className="w-4 h-4" />
-      case 'services': return <Settings className="w-4 h-4" />
+      case 'storage_files': return <Archive className="w-4 h-4" />
       default: return <Database className="w-4 h-4" />
     }
   }
@@ -129,9 +266,9 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
   const getTableName = (table: string) => {
     switch (table) {
       case 'patients': return 'Pacientes'
-      case 'enrollments': return 'Matrículas'
+      case 'patient_forms': return 'Formularios de Pacientes'
       case 'contacts': return 'Contactos'
-      case 'services': return 'Servicios'
+      case 'storage_files': return 'Archivos en Storage'
       default: return table
     }
   }
@@ -197,18 +334,18 @@ export default function DataCleaner({ onDataCleared }: DataCleanerProps) {
                   <div>
                     <h3 className="font-medium text-gray-900 mb-3">Seleccionar tablas a limpiar:</h3>
                     <div className="space-y-3">
-                      {Object.entries(selectedTables).map(([table, selected]) => (
+                      {availableTables.map((table) => (
                         <label key={table} className="flex items-center space-x-3 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={selected}
+                            checked={selectedTables[table as keyof typeof selectedTables] || false}
                             onChange={() => toggleTable(table)}
                             className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                           />
                           <div className="flex items-center space-x-2">
                             {getTableIcon(table)}
                             <span className="text-gray-700">{getTableName(table)}</span>
-                            <span className="text-sm text-gray-500">({counts[table as keyof typeof counts]} registros)</span>
+                            <span className="text-sm text-gray-500">({counts[table as keyof typeof counts] || 0} registros)</span>
                           </div>
                         </label>
                       ))}

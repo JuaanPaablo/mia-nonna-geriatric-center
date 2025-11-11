@@ -3,29 +3,6 @@
 import { Button } from '@/components/ui/button'
 import { Heart, Shield, Users, Clock } from 'lucide-react'
 
-const features = [
-  {
-    icon: Clock,
-    title: 'Atención 24/7',
-    description: 'Cuidado profesional las 24 horas del día'
-  },
-  {
-    icon: Heart,
-    title: 'Cuidado Especializado',
-    description: 'Personal médico y de enfermería especializado'
-  },
-  {
-    icon: Shield,
-    title: 'Ambiente Seguro',
-    description: 'Instalaciones adaptadas y seguras para nuestros residentes'
-  },
-  {
-    icon: Users,
-    title: 'Atención Personalizada',
-    description: 'Planes de cuidado individualizados'
-  }
-]
-
 export function HeroSection() {
   return (
     <section className="relative bg-gradient-to-br from-blue-50 via-white to-green-50 overflow-hidden">
@@ -37,16 +14,9 @@ export function HeroSection() {
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="inline-flex items-center px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-primary text-sm font-medium">
-                ✨ Centro geriátrico de confianza desde 2010
-              </div>
               
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                Cuidado con{' '}
-                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  corazón
-                </span>{' '}
-                para tus seres queridos
+                Cuidado profesional para tus seres queridos
               </h1>
               
               <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
@@ -54,30 +24,10 @@ export function HeroSection() {
                 recibe el cuidado personalizado que merece, con la tranquilidad que tu familia necesita.
               </p>
             </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" variant="healthcare" className="text-base px-8 py-4">
-                <a href="#contacto" className="flex items-center gap-2">
-                  Solicitar Información
-                  <Heart className="h-4 w-4" />
-                </a>
-              </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 py-4">
-                <a href="#servicios">
-                  Conocer Servicios
-                </a>
-              </Button>
-            </div>
-
             {/* Trust indicators */}
             <div className="flex items-center gap-6 pt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">500+</div>
-                <div className="text-sm text-gray-600">Familias atendidas</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">15+</div>
+                <div className="text-2xl font-bold text-gray-900">5+</div>
                 <div className="text-sm text-gray-600">Años de experiencia</div>
               </div>
               <div className="text-center">
@@ -92,54 +42,18 @@ export function HeroSection() {
             <div className="relative z-10">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  src="/images/nonna.jpg"
                   alt="Cuidado profesional en centro geriátrico"
                   className="w-full h-full object-cover"
                 />
               </div>
-              
-              {/* Floating card */}
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-lg border">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <Heart className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      98% de satisfacción
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      de las familias
-                    </div>
-                  </div>
-                </div>
-              </div>
+
             </div>
 
             {/* Background decoration */}
             <div className="absolute top-8 right-8 w-20 h-20 bg-secondary/20 rounded-full blur-2xl" />
             <div className="absolute bottom-8 left-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
           </div>
-        </div>
-
-        {/* Features grid */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="text-center group"
-            >
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full flex items-center justify-center group-hover:from-primary/20 group-hover:to-secondary/20 transition-all duration-300">
-                <feature.icon className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 text-sm">
-                {feature.description}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
 

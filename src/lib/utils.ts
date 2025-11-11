@@ -108,7 +108,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^(\+34|0034|34)?[6-9]\d{8}$/
+  const phoneRegex = /^(\+593|593)?[0-9]{9}$/
   const cleanPhone = phone.replace(/\s/g, '')
   return phoneRegex.test(cleanPhone)
 }

@@ -97,33 +97,6 @@ const testimonials = [
   }
 ]
 
-const stats = [
-  {
-    icon: Star,
-    value: '4.9/5',
-    label: 'Puntuación media',
-    description: 'Basada en 150+ reseñas'
-  },
-  {
-    icon: Users,
-    value: '98%',
-    label: 'Satisfacción familiar',
-    description: 'Familias satisfechas'
-  },
-  {
-    icon: Heart,
-    value: '95%',
-    label: 'Recomendación',
-    description: 'Nos recomendarían'
-  },
-  {
-    icon: Calendar,
-    value: '2.5 años',
-    label: 'Estancia media',
-    description: 'Tiempo de permanencia'
-  }
-]
-
 export function TestimonialsSection() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('Todos')
@@ -162,26 +135,6 @@ export function TestimonialsSection() {
             Nada nos llena más de orgullo que los testimonios de las familias que han confiado en nosotros 
             para el cuidado de sus seres queridos.
           </p>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full flex items-center justify-center">
-                <stat.icon className="h-8 w-8 text-primary" />
-              </div>
-              <div className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
-                {stat.value}
-              </div>
-              <div className="font-semibold text-gray-800 mb-1">
-                {stat.label}
-              </div>
-              <div className="text-sm text-gray-600">
-                {stat.description}
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Featured testimonial */}
@@ -342,27 +295,6 @@ export function TestimonialsSection() {
               onClick={() => setCurrentTestimonial(index)}
             />
           ))}
-        </div>
-
-        {/* CTA */}
-        <div className="bg-white rounded-2xl p-8 lg:p-12 text-center shadow-lg">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            ¿Quieres formar parte de nuestras historias de éxito?
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Te invitamos a conocer de primera mano por qué las familias eligen Mia Nonna 
-            para el cuidado de sus seres queridos.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="healthcare" size="lg">
-              <Heart className="h-4 w-4 mr-2" />
-              Solicitar información
-            </Button>
-            <Button variant="outline" size="lg">
-              <Users className="h-4 w-4 mr-2" />
-              Agendar visita
-            </Button>
-          </div>
         </div>
       </div>
     </section>

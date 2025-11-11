@@ -78,21 +78,6 @@ const amenities = [
     description: 'Conexión a internet en todas las áreas'
   },
   {
-    icon: Car,
-    title: 'Aparcamiento',
-    description: 'Plazas gratuitas para visitantes'
-  },
-  {
-    icon: Shield,
-    title: 'Seguridad 24h',
-    description: 'Videovigilancia y control de accesos'
-  },
-  {
-    icon: Bath,
-    title: 'SPA adaptado',
-    description: 'Hidroterapia y relajación'
-  },
-  {
     icon: Users,
     title: 'Sala de visitas',
     description: 'Espacios privados para familias'
@@ -259,27 +244,6 @@ export function FacilitiesSection() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Virtual tour CTA */}
-        <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 lg:p-12 text-white text-center">
-          <h3 className="text-2xl lg:text-3xl font-bold mb-4">
-            ¿Te gustaría conocer nuestras instalaciones?
-          </h3>
-          <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
-            Te invitamos a visitarnos para que puedas ver de primera mano nuestras instalaciones 
-            y conocer al equipo que cuidará de tu ser querido.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="secondary" size="lg">
-              <Stethoscope className="h-4 w-4 mr-2" />
-              Agendar visita presencial
-            </Button>
-            <Button variant="outline" size="lg" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-              <Users className="h-4 w-4 mr-2" />
-              Tour virtual 360°
-            </Button>
           </div>
         </div>
       </div>

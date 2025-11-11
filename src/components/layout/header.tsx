@@ -25,18 +25,19 @@ export function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-2 text-sm">
             <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
+              <a 
+                href="https://wa.me/593998313608" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
                 <Phone className="h-3 w-3" />
-                <span>+34 912 345 678</span>
-              </div>
+                <span>+593 99 831 3608</span>
+              </a>
               <div className="flex items-center space-x-2">
                 <Mail className="h-3 w-3" />
                 <span>info@mianonna.com</span>
               </div>
-            </div>
-            <div className="hidden sm:flex items-center space-x-2">
-              <Clock className="h-3 w-3" />
-              <span>Atención 24/7</span>
             </div>
           </div>
         </div>
@@ -48,15 +49,20 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">MN</span>
+              <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-r from-primary to-secondary">
+                <img
+                  src="/images/nonna.jpg"
+                  alt="Logo Mia Nonna"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
+                />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Mia Nonna</h1>
                 <p className="text-sm text-gray-600">Centro Geriátrico</p>
               </div>
             </Link>
-          </div>
+          </div>  
 
           {/* Desktop navigation */}
           <nav className="hidden lg:flex items-center space-x-8">

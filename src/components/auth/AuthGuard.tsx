@@ -18,7 +18,14 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     checkAuth()
     
     // Escuchar cambios en la autenticación
-    const { data: { subscription } } = supabase?.auth.onAuthStateChange(
+    if (!supabase) {
+      console.warn('Supabase client not initialized')
+      setLoading(false)
+      router.push('/login')
+      return
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
           setAuthenticated(true)
@@ -29,7 +36,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
           router.push('/login')
         }
       }
-    ) || { data: { subscription: null } }
+    )
 
     return () => {
       subscription?.unsubscribe()
@@ -38,9 +45,22 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   const checkAuth = async () => {
     try {
-      const { data: { session } } = await supabase?.auth.getSession() || {}
+      if (!supabase) {
+        console.warn('Supabase client not initialized')
+        router.push('/login')
+        setLoading(false)
+        return
+      }
+
+      const { data, error } = await supabase.auth.getSession()
       
-      if (session) {
+      if (error) {
+        console.error('Auth check error:', error)
+        router.push('/login')
+        return
+      }
+      
+      if (data?.session) {
         setAuthenticated(true)
       } else {
         router.push('/login')

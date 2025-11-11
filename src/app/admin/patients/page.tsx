@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Edit, Trash2, Search, Filter, Eye, Users, AlertCircle, CheckCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, Filter, Eye, Users, AlertCircle, CheckCircle, FileText } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import Box from '@mui/material/Box'
+import Modal from '@mui/material/Modal'
+import Typography from '@mui/material/Typography'
 import { 
   validateEcuadorianCedula, 
   validateMaxLength, 
   getRemainingChars, 
-  getCountryPrefix,
   calculateAge,
   validateDateOfBirth,
   generateNextPatientNumber
@@ -27,10 +30,16 @@ interface Patient {
   medications: string
   allergies: string
   dietary_restrictions: string
+  family_history: string
   mobility_level: string
   status: string
   additional_notes: string
   created_at: string
+}
+
+interface FormsStatus {
+  completed: number
+  total: number
 }
 
 interface FormErrors {
@@ -43,15 +52,23 @@ interface FormErrors {
   medications?: string
   allergies?: string
   dietary_restrictions?: string
+  family_history?: string
   additional_notes?: string
 }
 
 export default function PatientsPage() {
+  const router = useRouter()
   const [patients, setPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null)
+  const [formsStatus, setFormsStatus] = useState<Record<string, FormsStatus>>({})
+  const [showFilters, setShowFilters] = useState(false)
+  const [filters, setFilters] = useState({
+    status: 'all', // 'all', 'Activo', 'Inactivo', 'Alta médica'
+    formsStatus: 'all', // 'all', 'complete', 'incomplete', 'none'
+  })
   const [formData, setFormData] = useState({
     patient_number: '',
     cedula: '',
@@ -64,6 +81,7 @@ export default function PatientsPage() {
     medications: '',
     allergies: '',
     dietary_restrictions: '',
+    family_history: '',
     mobility_level: 'Independiente',
     status: 'Activo',
     additional_notes: ''
@@ -76,17 +94,71 @@ export default function PatientsPage() {
     loadPatients()
   }, [])
 
+  // Recargar estado de formularios cuando la página vuelve a tener foco
+  useEffect(() => {
+    const handleFocus = () => {
+      if (patients.length > 0) {
+        loadFormsStatus(patients.map(p => p.id))
+      }
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [patients])
+
   const loadPatients = async () => {
     try {
       setLoading(true)
       const result = await supabase?.from('patients').select('*').order('created_at', { ascending: false })
       
       if (result?.error) throw result.error
-      setPatients(result?.data || [])
+      const patientsData = result?.data || []
+      setPatients(patientsData)
+      
+      // Cargar estado de formularios para cada paciente
+      await loadFormsStatus(patientsData.map(p => p.id))
     } catch (error) {
       console.error('Error loading patients:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadFormsStatus = async (patientIds: string[]) => {
+    if (!supabase || patientIds.length === 0) return
+
+    try {
+      const statusMap: Record<string, FormsStatus> = {}
+      
+      // Cargar formularios para todos los pacientes en una sola consulta
+      const { data: formsData, error } = await supabase
+        .from('patient_forms')
+        .select('patient_id, status, file_url')
+        .in('patient_id', patientIds)
+
+      if (error) {
+        console.error('Error loading forms status:', error)
+        return
+      }
+
+      // Inicializar todos los pacientes con 0/15
+      patientIds.forEach(id => {
+        statusMap[id] = { completed: 0, total: 15 }
+      })
+
+      // Contar formularios completados por paciente
+      if (formsData) {
+        formsData.forEach(form => {
+          const isCompleted = form.status === 'completado' || form.file_url !== null
+          if (isCompleted && statusMap[form.patient_id]) {
+            statusMap[form.patient_id].completed++
+          }
+        })
+      }
+
+      setFormsStatus(statusMap)
+    } catch (error) {
+      console.error('Error loading forms status:', error)
     }
   }
 
@@ -119,6 +191,7 @@ export default function PatientsPage() {
       medications: patient.medications || '',
       allergies: patient.allergies || '',
       dietary_restrictions: patient.dietary_restrictions || '',
+      family_history: patient.family_history || '',
       mobility_level: patient.mobility_level || 'Independiente',
       status: patient.status || 'Activo',
       additional_notes: patient.additional_notes || ''
@@ -156,8 +229,11 @@ export default function PatientsPage() {
     }
 
     // Validar teléfono de emergencia
-    if (formData.emergency_contact_phone && !validateMaxLength(formData.emergency_contact_phone, 20)) {
-      errors.emergency_contact_phone = 'El teléfono no puede exceder 20 caracteres'
+    if (formData.emergency_contact_phone) {
+      const phoneDigits = formData.emergency_contact_phone.replace(/\D/g, '')
+      if (phoneDigits.length !== 10) {
+        errors.emergency_contact_phone = 'El teléfono debe tener exactamente 10 dígitos'
+      }
     }
 
     // Validar campos de texto largo
@@ -175,6 +251,10 @@ export default function PatientsPage() {
 
     if (formData.dietary_restrictions && !validateMaxLength(formData.dietary_restrictions, 300)) {
       errors.dietary_restrictions = 'Las restricciones dietéticas no pueden exceder 300 caracteres'
+    }
+
+    if (formData.family_history && !validateMaxLength(formData.family_history, 300)) {
+      errors.family_history = 'Los antecedentes familiares no pueden exceder 300 caracteres'
     }
 
     if (formData.additional_notes && !validateMaxLength(formData.additional_notes, 300)) {
@@ -248,6 +328,7 @@ export default function PatientsPage() {
       medications: '',
       allergies: '',
       dietary_restrictions: '',
+      family_history: '',
       mobility_level: 'Independiente',
       status: 'Activo',
       additional_notes: ''
@@ -272,24 +353,75 @@ export default function PatientsPage() {
   }
 
   const handlePhoneChange = (value: string) => {
-    // Limpiar el valor y aplicar el prefijo del país
-    const cleanValue = value.replace(/\D/g, '')
-    const countryPrefix = getCountryPrefix(selectedCountry)
+    // Solo permitir números y limitar a 10 dígitos
+    const cleanValue = value.replace(/\D/g, '').slice(0, 10)
     
-    let formattedPhone = countryPrefix
-    if (cleanValue) {
-      formattedPhone += ' ' + cleanValue
+    setFormData({ ...formData, emergency_contact_phone: cleanValue })
+    
+    // Limpiar error de teléfono si se corrige
+    if (formErrors.emergency_contact_phone) {
+      setFormErrors({ ...formErrors, emergency_contact_phone: undefined })
     }
-    
-    setFormData({ ...formData, emergency_contact_phone: formattedPhone })
   }
 
-  const filteredPatients = patients.filter(patient =>
-    (patient.cedula && patient.cedula.includes(searchTerm)) ||
-    (patient.full_name && patient.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (patient.patient_number && patient.patient_number.includes(searchTerm)) ||
-    (patient.emergency_contact_name && patient.emergency_contact_name.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const filteredPatients = patients.filter(patient => {
+    // Filtro de búsqueda de texto
+    const matchesSearch = 
+      (patient.cedula && patient.cedula.includes(searchTerm)) ||
+      (patient.full_name && patient.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (patient.patient_number && patient.patient_number.includes(searchTerm)) ||
+      (patient.emergency_contact_name && patient.emergency_contact_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (patient.emergency_contact_phone && patient.emergency_contact_phone.includes(searchTerm))
+
+    if (!matchesSearch) return false
+
+    // Filtro por estado del paciente
+    if (filters.status !== 'all' && patient.status !== filters.status) {
+      return false
+    }
+
+    // Filtro por estado de formularios
+    const forms = formsStatus[patient.id] || { completed: 0, total: 15 }
+    const isComplete = forms.completed === forms.total
+    const hasSomeForms = forms.completed > 0
+
+    if (filters.formsStatus === 'complete' && !isComplete) {
+      return false
+    }
+    if (filters.formsStatus === 'incomplete' && (isComplete || !hasSomeForms)) {
+      return false
+    }
+    if (filters.formsStatus === 'none' && hasSomeForms) {
+      return false
+    }
+
+    return true
+  })
+
+  const hasActiveFilters = filters.status !== 'all' || filters.formsStatus !== 'all'
+
+  const clearFilters = () => {
+    setFilters({
+      status: 'all',
+      formsStatus: 'all'
+    })
+  }
+
+  // Estilo del modal MUI
+  const modalStyle = {
+    position: 'absolute' as const,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '90%',
+    maxWidth: '900px',
+    maxHeight: '90vh',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    overflowY: 'auto',
+  }
 
   if (loading) {
     return (
@@ -329,18 +461,96 @@ export default function PatientsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Buscar por cédula, nombre, número de paciente o contacto de emergencia..."
+                  placeholder="Buscar por cédula, nombre, número de paciente, contacto de emergencia o teléfono..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className="flex gap-2 relative">
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-4 py-2 border rounded-lg transition-colors flex items-center ${
+                  hasActiveFilters 
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
                 <Filter className="w-4 h-4 inline mr-2" />
                 Filtros
+                {hasActiveFilters && (
+                  <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+                    {[filters.status !== 'all', filters.formsStatus !== 'all'].filter(Boolean).length}
+                  </span>
+                )}
               </button>
+
+              {/* Dropdown de Filtros */}
+              {showFilters && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowFilters(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-20 p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Filtros</h3>
+                      {hasActiveFilters && (
+                        <button
+                          onClick={clearFilters}
+                          className="text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          Limpiar
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Filtro por Estado del Paciente */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Estado del Paciente
+                      </label>
+                      <select
+                        value={filters.status}
+                        onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="all">Todos</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
+                        <option value="Alta médica">Alta médica</option>
+                      </select>
+                    </div>
+
+                    {/* Filtro por Estado de Formularios */}
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Estado de Formularios
+                      </label>
+                      <select
+                        value={filters.formsStatus}
+                        onChange={(e) => setFilters({ ...filters, formsStatus: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="all">Todos</option>
+                        <option value="complete">Completos (15/15)</option>
+                        <option value="incomplete">Incompletos (1-14/15)</option>
+                        <option value="none">Sin formularios (0/15)</option>
+                      </select>
+                    </div>
+
+                    {/* Resumen de filtros activos */}
+                    {hasActiveFilters && (
+                      <div className="pt-4 border-t border-gray-200">
+                        <p className="text-xs text-gray-500">
+                          {filteredPatients.length} paciente(s) encontrado(s)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -373,6 +583,9 @@ export default function PatientsPage() {
                     Estado
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Formularios
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
@@ -400,8 +613,8 @@ export default function PatientsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm text-gray-900">{patient.emergency_contact_name}</div>
-                        <div className="text-sm text-gray-500">{patient.emergency_contact_phone}</div>
+                        <div className="text-sm text-gray-900">{patient.emergency_contact_name || 'Sin nombre'}</div>
+                        <div className="text-sm text-gray-500">{patient.emergency_contact_phone || 'Sin teléfono'}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -413,17 +626,67 @@ export default function PatientsPage() {
                         {patient.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {(() => {
+                        const status = formsStatus[patient.id] || { completed: 0, total: 15 }
+                        const isComplete = status.completed === status.total
+                        const percentage = Math.round((status.completed / status.total) * 100)
+                        
+                        return (
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-1 min-w-[80px]">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className={`text-xs font-medium ${
+                                  isComplete ? 'text-green-700' : 
+                                  percentage >= 50 ? 'text-yellow-700' : 
+                                  'text-red-700'
+                                }`}>
+                                  {status.completed}/{status.total}
+                                </span>
+                                {isComplete && (
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                )}
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full transition-all ${
+                                    isComplete ? 'bg-green-500' :
+                                    percentage >= 50 ? 'bg-yellow-500' :
+                                    'bg-red-500'
+                                  }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                            </div>
+                            {!isComplete && (
+                              <AlertCircle className={`w-4 h-4 ${
+                                percentage >= 50 ? 'text-yellow-600' : 'text-red-600'
+                              }`} />
+                            )}
+                          </div>
+                        )
+                      })()}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button 
+                          onClick={() => router.push(`/admin/patients/${patient.id}/forms`)}
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                          title="Ver formularios"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button 
                           onClick={() => handleEditPatient(patient)}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          title="Editar paciente"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDeletePatient(patient.id)}
                           className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          title="Eliminar paciente"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -450,19 +713,21 @@ export default function PatientsPage() {
       </div>
 
       {/* Add/Edit Modal */}
-      {(showAddModal || editingPatient) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
-                {editingPatient ? 'Editar Paciente' : 'Nuevo Paciente'}
-              </h3>
-              <p className="text-gray-600 text-sm">
-                {editingPatient ? 'Modifica la información del paciente.' : 'Completa la información del nuevo paciente.'}
-              </p>
-            </div>
+      <Modal
+        open={showAddModal || !!editingPatient}
+        onClose={resetForm}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-modal-title" variant="h6" component="h2" className="mb-2">
+            {editingPatient ? 'Editar Paciente' : 'Nuevo Paciente'}
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 1, mb: 3 }} className="text-gray-600 text-sm">
+            {editingPatient ? 'Modifica la información del paciente.' : 'Completa la información del nuevo paciente.'}
+          </Typography>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Número de Paciente y Cédula */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -590,29 +855,7 @@ export default function PatientsPage() {
               </div>
 
               {/* Contacto de Emergencia */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    País
-                  </label>
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="EC">🇪🇨 Ecuador (Predeterminado)</option>
-                    <option value="CO">🇨🇴 Colombia</option>
-                    <option value="PE">🇵🇪 Perú</option>
-                    <option value="AR">🇦🇷 Argentina</option>
-                    <option value="MX">🇲🇽 México</option>
-                    <option value="ES">🇪🇸 España</option>
-                    <option value="US">🇺🇸 Estados Unidos</option>
-                    <option value="CL">🇨🇱 Chile</option>
-                    <option value="VE">🇻🇪 Venezuela</option>
-                    <option value="BO">🇧🇴 Bolivia</option>
-                  </select>
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Nombre del Contacto
@@ -648,19 +891,21 @@ export default function PatientsPage() {
                   </label>
                   <input
                     type="tel"
-                    maxLength={20}
+                    maxLength={10}
                     value={formData.emergency_contact_phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                       formErrors.emergency_contact_phone ? 'border-red-300' : 'border-gray-300'
                     }`}
-                    placeholder="Número de teléfono"
+                    placeholder="0987654321"
                   />
-                  {formErrors.emergency_contact_phone && (
+                  {formErrors.emergency_contact_phone ? (
                     <p className="text-xs text-red-600 mt-1 flex items-center">
                       <AlertCircle className="w-3 h-3 mr-1" />
                       {formErrors.emergency_contact_phone}
                     </p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">10 dígitos numéricos</p>
                   )}
                 </div>
               </div>
@@ -795,6 +1040,38 @@ export default function PatientsPage() {
                 </div>
               </div>
 
+              {/* Antecedentes Familiares */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Antecedentes Familiares
+                </label>
+                <div className="relative">
+                  <textarea
+                    value={formData.family_history}
+                    onChange={(e) => setFormData({...formData, family_history: e.target.value})}
+                    rows={3}
+                    maxLength={300}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      formErrors.family_history ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="Historial médico familiar relevante (enfermedades hereditarias, condiciones familiares, etc.)"
+                  />
+                  <div className="absolute bottom-2 right-2">
+                    <span className={`text-xs ${
+                      getRemainingChars(formData.family_history, 300) < 50 ? 'text-red-500' : 'text-gray-400'
+                    }`}>
+                      {getRemainingChars(formData.family_history, 300)}
+                    </span>
+                  </div>
+                </div>
+                {formErrors.family_history && (
+                  <p className="text-xs text-red-600 mt-1 flex items-center">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    {formErrors.family_history}
+                  </p>
+                )}
+              </div>
+
               {/* Estado y Nivel de Movilidad */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -879,9 +1156,8 @@ export default function PatientsPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
+        </Box>
+      </Modal>
     </div>
   )
 }

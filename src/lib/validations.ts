@@ -40,7 +40,7 @@ export const contactFormSchema = z.object({
     .max(100, 'El nombre no puede exceder 100 caracteres'),
   phone: z
     .string()
-    .regex(/^(\+34|34)?[6-9]\d{8}$/, 'Introduce un número de teléfono válido')
+    .regex(/^(\+593|593)?[0-9]{9}$/, 'Introduce un número de teléfono válido (formato: +593 9XX XXX XXX)')
     .transform(val => val.replace(/\s+/g, '')),
   email: z
     .string()
@@ -78,7 +78,7 @@ export const emergencyContactSchema = z.object({
     .min(1, 'Especifica la relación con el residente'),
   phone: z
     .string()
-    .regex(/^(\+34|34)?[6-9]\d{8}$/, 'Introduce un número de teléfono válido'),
+    .regex(/^(\+593|593)?[0-9]{9}$/, 'Introduce un número de teléfono válido (formato: +593 9XX XXX XXX)'),
   email: z
     .string()
     .email('Introduce un email válido')
