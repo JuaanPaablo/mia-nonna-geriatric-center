@@ -109,6 +109,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getInitialSession()
 
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -120,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
+      subscription?.unsubscribe()
     }
   }, [])
 

@@ -91,7 +91,8 @@ export const createServerClient = () => {
     );
   }
   
-  return createClient(url, serviceKey, {
+  // TypeScript ahora sabe que url y serviceKey no son undefined después de la validación
+  return createClient(url as string, serviceKey as string, {
     auth: {
       autoRefreshToken: false,
       persistSession: false

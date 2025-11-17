@@ -51,10 +51,11 @@ export const contactFormSchema = z.object({
     .min(2, 'El nombre del residente debe tener al menos 2 caracteres')
     .max(100, 'El nombre no puede exceder 100 caracteres'),
   residentAge: z
-    .number({ required_error: 'La edad es obligatoria' })
+    .number()
     .int('La edad debe ser un número entero')
     .min(0, 'La edad no puede ser negativa')
-    .max(150, 'Introduce una edad válida'),
+    .max(150, 'Introduce una edad válida')
+    .optional(),
   careType: z
     .string()
     .min(1, 'Selecciona un tipo de cuidado'),
@@ -134,7 +135,7 @@ export const patientSchema = z.object({
       return age >= 0 && age <= 150
     }, 'Introduce una fecha de nacimiento válida'),
   gender: z.enum(['male', 'female', 'other'], {
-    required_error: 'Selecciona el género',
+    message: 'Selecciona el género'
   }),
   medicalConditions: z
     .array(z.string())
@@ -172,10 +173,10 @@ export const enrollmentSchema = z.object({
     .string()
     .min(1, 'La fecha de matrícula es obligatoria'),
   careType: z.enum(['full_time', 'day_care', 'respite'], {
-    required_error: 'Selecciona el tipo de cuidado',
+    message: 'Selecciona el tipo de cuidado'
   }),
   monthlyFee: z
-    .number({ required_error: 'La tarifa mensual es obligatoria' })
+    .number()
     .min(0, 'La tarifa no puede ser negativa')
     .max(10000, 'Introduce una tarifa válida'),
   status: z.enum(['pending', 'approved', 'rejected']).default('pending'),

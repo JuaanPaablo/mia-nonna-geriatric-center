@@ -33,6 +33,10 @@ export function usePatients(filters?: SearchFiltersData): UsePatientsReturn {
       setLoading(true)
       setError(null)
 
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       let query = supabase
         .from('patients')
         .select('*', { count: 'exact' })
@@ -83,6 +87,10 @@ export function usePatients(filters?: SearchFiltersData): UsePatientsReturn {
     try {
       setError(null)
 
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       const { data: newPatient, error: createError } = await supabase
         .from('patients')
         .insert(data)
@@ -106,6 +114,10 @@ export function usePatients(filters?: SearchFiltersData): UsePatientsReturn {
   const updatePatient = useCallback(async (id: string, data: PatientUpdate): Promise<Patient> => {
     try {
       setError(null)
+
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
 
       const { data: updatedPatient, error: updateError } = await supabase
         .from('patients')
@@ -135,6 +147,10 @@ export function usePatients(filters?: SearchFiltersData): UsePatientsReturn {
     try {
       setError(null)
 
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       const { error: deleteError } = await supabase
         .from('patients')
         .delete()
@@ -155,6 +171,10 @@ export function usePatients(filters?: SearchFiltersData): UsePatientsReturn {
   const getPatient = useCallback(async (id: string): Promise<Patient | null> => {
     try {
       setError(null)
+
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
 
       const { data, error: fetchError } = await supabase
         .from('patients')
@@ -205,6 +225,10 @@ export function usePatient(id: string) {
       setLoading(true)
       setError(null)
 
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       const { data, error: fetchError } = await supabase
         .from('patients')
         .select('*')
@@ -251,6 +275,10 @@ export function usePatientsStats() {
     try {
       setLoading(true)
       setError(null)
+
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
 
       // Get all patients
       const { data: allPatients, error: patientsError } = await supabase

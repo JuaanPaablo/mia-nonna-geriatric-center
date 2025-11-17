@@ -127,9 +127,10 @@ export function ContactSection() {
       
       setIsSubmitted(true)
       reset()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting form:', error)
-      alert('Hubo un error al enviar tu solicitud. Por favor, intenta nuevamente o contáctanos directamente por WhatsApp.')
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
+      alert(`Hubo un error al enviar tu solicitud: ${errorMessage}. Por favor, intenta nuevamente o contáctanos directamente por WhatsApp.`)
     } finally {
       setIsSubmitting(false)
     }

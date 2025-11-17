@@ -115,8 +115,8 @@ export function WhyChooseUsSection() {
         {/* Quote section */}
         <div className="mt-16 bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 lg:p-12 text-white text-center">
           <blockquote className="text-xl lg:text-2xl font-medium mb-6 italic text-black">
-            "En Mia Nonna no solo cuidamos a nuestros residentes, los tratamos como familia. 
-            Cada sonrisa, cada momento de bienestar es nuestra mayor recompensa."
+            &ldquo;En Mia Nonna no solo cuidamos a nuestros residentes, los tratamos como familia. 
+            Cada sonrisa, cada momento de bienestar es nuestra mayor recompensa.&rdquo;
           </blockquote>
         </div>
       </div>

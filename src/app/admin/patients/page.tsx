@@ -119,10 +119,13 @@ export default function PatientsPage() {
   const loadPatients = async () => {
     try {
       setLoading(true)
-      const result = await supabase?.from('patients').select('*').order('created_at', { ascending: false })
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+      const result = await supabase.from('patients').select('*').order('created_at', { ascending: false })
       
-      if (result?.error) throw result.error
-      const patientsData = result?.data || []
+      if (result.error) throw result.error
+      const patientsData = result.data || []
       setPatients(patientsData)
       
       // Cargar estado de formularios para cada paciente
@@ -195,6 +198,9 @@ export default function PatientsPage() {
 
     try {
       // Obtener el email del usuario actual
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user || !user.email) {
@@ -202,6 +208,9 @@ export default function PatientsPage() {
       }
 
       // Verificar la contraseña intentando hacer sign in
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user.email,
         password: deletePassword
@@ -214,6 +223,9 @@ export default function PatientsPage() {
       }
 
       // Si la contraseña es correcta, eliminar el paciente
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
       const result = await supabase.from('patients').delete().eq('id', patientToDelete)
       
       if (result.error) throw result.error
@@ -228,9 +240,10 @@ export default function PatientsPage() {
       setSuccessMessage('Paciente eliminado exitosamente')
       setIsError(false)
       setShowSuccessModal(true)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error deleting patient:', error)
-      setDeletePasswordError(error.message || 'Error al eliminar el paciente')
+      const errorMessage = error instanceof Error ? error.message : 'Error al eliminar el paciente'
+      setDeletePasswordError(errorMessage)
     } finally {
       setVerifyingPassword(false)
     }
@@ -351,22 +364,26 @@ export default function PatientsPage() {
         patient_number: editingPatient ? formData.patient_number : generateNextPatientNumber(patients.map(p => p.patient_number))
       }
 
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
       if (editingPatient) {
         // Actualizar paciente existente
-        const result = await supabase?.from('patients')
+        const result = await supabase.from('patients')
           .update(patientData)
           .eq('id', editingPatient.id)
         
-        if (result?.error) throw result.error
+        if (result.error) throw result.error
         setSuccessMessage('Paciente actualizado exitosamente')
         setIsError(false)
         setShowSuccessModal(true)
       } else {
         // Crear nuevo paciente
-        const result = await supabase?.from('patients')
+        const result = await supabase.from('patients')
           .insert([patientData])
         
-        if (result?.error) throw result.error
+        if (result.error) throw result.error
         setSuccessMessage('Paciente creado exitosamente')
         setIsError(false)
         setShowSuccessModal(true)

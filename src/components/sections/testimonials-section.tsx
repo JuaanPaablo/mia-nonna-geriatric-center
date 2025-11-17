@@ -182,7 +182,7 @@ export function TestimonialsSection() {
                   <Quote className="h-8 w-8 text-primary/30" />
                   
                   <blockquote className="text-lg text-gray-700 leading-relaxed italic">
-                    "{testimonials[currentTestimonial].content}"
+                    &ldquo;{testimonials[currentTestimonial].content}&rdquo;
                   </blockquote>
                   
                   <div className="bg-primary/5 rounded-lg p-4">
@@ -276,7 +276,7 @@ export function TestimonialsSection() {
                 </div>
                 
                 <p className="text-sm text-gray-700 line-clamp-3">
-                  "{testimonial.content}"
+                  &ldquo;{testimonial.content}&rdquo;
                 </p>
                 
                 <div className="text-xs text-gray-500">
