@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     template: '%s | Mia Nonna Centro Geriátrico',
   },
   description: 'Centro geriátrico Mia Nonna ofrece cuidado profesional para personas mayores. Servicios de residencia, centro de día y respiro familiar con personal especializado en Madrid.',
+  icons: {
+    icon: '/images/nonna.jpg',
+    apple: '/images/nonna.jpg',
+  },
   keywords: [
     'centro geriátrico',
     'residencia mayores',
@@ -99,12 +103,11 @@ export default function RootLayout({
   return (
     <html lang="es" className="scroll-smooth">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/images/nonna.jpg" type="image/jpeg" />
+        <link rel="apple-touch-icon" href="/images/nonna.jpg" />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#009de6" />
-        <meta name="msapplication-TileColor" content="#009de6" />
+        <meta name="theme-color" content="#2d5016" />
+        <meta name="msapplication-TileColor" content="#2d5016" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         
         {/* Structured Data for Healthcare Organization */}

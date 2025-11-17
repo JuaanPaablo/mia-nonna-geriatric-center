@@ -34,21 +34,27 @@ export function HeroSection() {
           </div>
 
           {/* Hero Image */}
-          <div className="relative">
-            <div className="relative z-10">
-              <div className="aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
+          <div
+            className="relative flex items-center justify-center"
+            style={{
+              width: 580,  // Puedes cambiar estos valores cuando quieras
+              height: 640, // Puedes cambiar estos valores cuando quieras
+              maxWidth: '100%',
+            }}
+          >
+            <div className="relative z-10 w-full h-full">
+              <div
+                className="rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center bg-[#f5f1e8] w-full h-full"
+                style={{ width: '100%', height: '100%' }}
+              >
                 <img
                   src="/images/nonna.jpg"
                   alt="Cuidado profesional en centro geriátrico"
                   className="w-full h-full object-cover"
+                  style={{ width: '100%', height: '100%' }}
                 />
               </div>
-
             </div>
-
-            {/* Background decoration */}
-            <div className="absolute top-8 right-8 w-20 h-20 bg-secondary/20 rounded-full blur-2xl" />
-            <div className="absolute bottom-8 left-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
           </div>
         </div>
       </div>

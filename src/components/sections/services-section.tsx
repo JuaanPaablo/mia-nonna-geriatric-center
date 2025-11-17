@@ -9,7 +9,9 @@ import {
   Shield,
   BookOpen,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  HeartHandshake,
+  Calendar
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -88,7 +90,6 @@ const includedServices = [
     icon: Shield,
     items: [
       'Visitas de Cruz Roja',
-      'Charlas de seguridad con Bomberos',
       'Educación preventiva'
     ],
     color: 'text-indigo-600'
@@ -142,6 +143,41 @@ export function ServicesSection() {
                   Incluye material didáctico y todos los servicios
                 </p>
               </div>
+              
+              {/* Flexibility and Payment Options - Prominent */}
+              <div className="mt-10 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div className="p-6 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 rounded-xl border-2 border-blue-300/60 hover:border-blue-400 hover:shadow-xl transition-all transform hover:scale-[1.02]">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-xl bg-white shadow-md">
+                      <HeartHandshake className="h-7 w-7 text-blue-600 flex-shrink-0" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-gray-900 mb-2">
+                        Nos adaptamos a las necesidades de cada uno
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                        Cada residente es único. Personalizamos nuestros servicios según las necesidades individuales.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-6 bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 rounded-xl border-2 border-green-300/60 hover:border-green-400 hover:shadow-xl transition-all transform hover:scale-[1.02]">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 rounded-xl bg-white shadow-md">
+                      <Calendar className="h-7 w-7 text-green-600 flex-shrink-0" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-gray-900 mb-2">
+                        Pagos flexibles y diferidos
+                      </p>
+                      <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                        Entendemos que cada situación es diferente. Ofrecemos opciones de pago adaptadas a tu realidad.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="relative z-10 px-6 lg:px-12 pb-12">
@@ -173,7 +209,7 @@ export function ServicesSection() {
               </div>
 
               {/* Additional note */}
-              <div className="mt-8 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border border-primary/10">
+              <div className="mt-6 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border border-primary/10">
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
