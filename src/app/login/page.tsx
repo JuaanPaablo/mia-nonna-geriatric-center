@@ -75,37 +75,47 @@ export default function LoginPage() {
         }, 1500)
       }
     } catch (error: any) {
-      // Detectar errores de credenciales inválidas (el más común)
-      // Incluye "Email not confirmed" porque Supabase puede devolverlo cuando la contraseña es incorrecta
-      const isInvalidCredentials = 
-        error.message?.includes('Invalid login credentials') ||
-        error.message?.includes('Invalid credentials') ||
-        error.message?.includes('Email not confirmed') ||
-        (error.status === 400 && error.message?.toLowerCase().includes('invalid')) ||
-        error.code === 'invalid_credentials'
+      // Log completo del error para debugging
+      console.error('Login error details:', {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        error: error
+      })
       
-      // Detectar errores de configuración (solo si no es un error de credenciales)
-      const isConfigError = 
-        !isInvalidCredentials && (
-          error.message?.includes('not initialized') ||
-          error.message?.includes('Invalid API key') ||
-          (error.status === 400 && error.message?.includes('API'))
-        )
+      // Detectar errores específicos
+      const errorMessage = error.message?.toLowerCase() || ''
+      const errorCode = error.code || ''
       
-      // Solo loguear errores importantes en consola (no errores de credenciales comunes)
-      if (!isInvalidCredentials) {
-        console.error('Login error:', error)
+      // Email no confirmado
+      if (errorMessage.includes('email not confirmed') || errorCode === 'email_not_confirmed') {
+        setError('Tu email no ha sido confirmado. Si creaste el usuario manualmente en Supabase, asegúrate de marcar "Auto-confirm email" o establecer "Email Confirmed" como true.')
+        return
       }
       
-      if (isInvalidCredentials) {
-        // Mensaje genérico y amigable para errores de credenciales
-        setError('El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.')
-      } else if (isConfigError) {
+      // Credenciales inválidas
+      if (
+        errorMessage.includes('invalid login credentials') ||
+        errorMessage.includes('invalid credentials') ||
+        errorCode === 'invalid_credentials' ||
+        (error.status === 400 && errorMessage.includes('invalid'))
+      ) {
+        setError('El correo electrónico o la contraseña son incorrectos. Si creaste el usuario manualmente en Supabase, verifica que: 1) La contraseña se estableció correctamente, 2) El email esté confirmado (marca "Auto-confirm email"), 3) El usuario esté activo.')
+        return
+      }
+      
+      // Error de configuración
+      if (
+        errorMessage.includes('not initialized') ||
+        errorMessage.includes('invalid api key') ||
+        (error.status === 400 && errorMessage.includes('api'))
+      ) {
         setError('Error de configuración: Verifica que las variables de entorno de Supabase estén configuradas correctamente en .env.local')
-      } else {
-        // Mensaje genérico para otros errores
-        setError('No se pudo iniciar sesión. Por favor, intenta nuevamente.')
+        return
       }
+      
+      // Otros errores - mostrar mensaje específico si está disponible
+      setError(error.message || 'No se pudo iniciar sesión. Por favor, intenta nuevamente.')
     } finally {
       setLoading(false)
     }
@@ -254,20 +264,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Botón Demo */}
-          <div className="mt-6">
-            <button
-              onClick={handleDemoLogin}
-              disabled={loading}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-            >
-              {loading ? 'Iniciando...' : 'Acceso Demo'}
-            </button>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Credenciales: admin@mianonna.com / admin123
-            </p>
-          </div>
-
           {/* Enlaces adicionales */}
           <div className="mt-6 text-center">
             <Link href="/" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
@@ -279,7 +275,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
-            © 2024 Mia Nonna. Todos los derechos reservados.
+            © 2025 Mia Nonna. Todos los derechos reservados.
           </p>
         </div>
       </div>

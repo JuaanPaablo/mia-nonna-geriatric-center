@@ -16,7 +16,7 @@ import {
 
 const navigation = {
   services: [
-    { name: 'Atención Médica 24/7', href: '#servicios' },
+    { name: 'Atención Médica', href: '#servicios' },
     { name: 'Fisioterapia', href: '#servicios' },
     { name: 'Terapia Ocupacional', href: '#servicios' },
     { name: 'Nutrición Especializada', href: '#servicios' },
@@ -39,10 +39,8 @@ const navigation = {
   ],
   support: [
     { name: 'Contacto', href: '#contacto' },
-    { name: 'Preguntas Frecuentes', href: '#' },
     { name: 'Política de Privacidad', href: '#' },
     { name: 'Términos y Condiciones', href: '#' },
-            { name: 'Portal del Familiar', href: '/login' },
   ],
 }
 
@@ -137,11 +135,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-300">Calle de la Salud, 123<br />28001 Madrid, España</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-gray-300">Atención 24/7</span>
+                <span className="text-gray-300">Pilanquí, Ibarra, Imbabura</span>
               </div>
             </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Plus, Edit, Trash2, Search, Filter, Eye, Users, AlertCircle, CheckCircle, FileText } from 'lucide-react'
+import { Plus, Edit, Trash2, Search, Filter, Eye, Users, AlertCircle, CheckCircle, FileText, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
@@ -89,6 +89,16 @@ export default function PatientsPage() {
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [selectedCountry, setSelectedCountry] = useState('EC')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [patientsPerPage] = useState(10)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [patientToDelete, setPatientToDelete] = useState<string | null>(null)
+  const [deletePassword, setDeletePassword] = useState('')
+  const [deletePasswordError, setDeletePasswordError] = useState('')
+  const [verifyingPassword, setVerifyingPassword] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [isError, setIsError] = useState(false)
 
   useEffect(() => {
     loadPatients()
@@ -162,19 +172,75 @@ export default function PatientsPage() {
     }
   }
 
-  const handleDeletePatient = async (patientId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este paciente?')) return
-    
-    try {
-      const result = await supabase?.from('patients').delete().eq('id', patientId)
-      if (result?.error) throw result.error
-      
-      // Recargar la lista
-      loadPatients()
-    } catch (error) {
-      console.error('Error deleting patient:', error)
-      alert('Error al eliminar el paciente')
+  const handleDeletePatient = (patientId: string) => {
+    setPatientToDelete(patientId)
+    setShowDeleteModal(true)
+    setDeletePassword('')
+    setDeletePasswordError('')
+  }
+
+  const verifyPasswordAndDelete = async () => {
+    if (!deletePassword) {
+      setDeletePasswordError('Por favor ingresa tu contraseña')
+      return
     }
+
+    if (!patientToDelete || !supabase) {
+      setDeletePasswordError('Error: No se puede eliminar el paciente')
+      return
+    }
+
+    setVerifyingPassword(true)
+    setDeletePasswordError('')
+
+    try {
+      // Obtener el email del usuario actual
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user || !user.email) {
+        throw new Error('No se pudo obtener la información del usuario')
+      }
+
+      // Verificar la contraseña intentando hacer sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: deletePassword
+      })
+
+      if (signInError) {
+        setDeletePasswordError('Contraseña incorrecta. Por favor intenta nuevamente.')
+        setVerifyingPassword(false)
+        return
+      }
+
+      // Si la contraseña es correcta, eliminar el paciente
+      const result = await supabase.from('patients').delete().eq('id', patientToDelete)
+      
+      if (result.error) throw result.error
+
+      // Cerrar el modal y recargar la lista
+      setShowDeleteModal(false)
+      setPatientToDelete(null)
+      setDeletePassword('')
+      loadPatients()
+      
+      // Mostrar modal de éxito
+      setSuccessMessage('Paciente eliminado exitosamente')
+      setIsError(false)
+      setShowSuccessModal(true)
+    } catch (error: any) {
+      console.error('Error deleting patient:', error)
+      setDeletePasswordError(error.message || 'Error al eliminar el paciente')
+    } finally {
+      setVerifyingPassword(false)
+    }
+  }
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false)
+    setPatientToDelete(null)
+    setDeletePassword('')
+    setDeletePasswordError('')
   }
 
   const handleEditPatient = (patient: Patient) => {
@@ -292,14 +358,18 @@ export default function PatientsPage() {
           .eq('id', editingPatient.id)
         
         if (result?.error) throw result.error
-        alert('Paciente actualizado exitosamente')
+        setSuccessMessage('Paciente actualizado exitosamente')
+        setIsError(false)
+        setShowSuccessModal(true)
       } else {
         // Crear nuevo paciente
         const result = await supabase?.from('patients')
           .insert([patientData])
         
         if (result?.error) throw result.error
-        alert('Paciente creado exitosamente')
+        setSuccessMessage('Paciente creado exitosamente')
+        setIsError(false)
+        setShowSuccessModal(true)
       }
 
       // Limpiar formulario y cerrar modal
@@ -309,7 +379,9 @@ export default function PatientsPage() {
       loadPatients()
     } catch (error) {
       console.error('Error saving patient:', error)
-      alert('Error al guardar el paciente')
+      setSuccessMessage('Error al guardar el paciente. Por favor intenta nuevamente.')
+      setIsError(true)
+      setShowSuccessModal(true)
     } finally {
       setSubmitting(false)
     }
@@ -397,6 +469,17 @@ export default function PatientsPage() {
 
     return true
   })
+
+  // Calcular paginación
+  const totalPages = Math.ceil(filteredPatients.length / patientsPerPage)
+  const indexOfLastPatient = currentPage * patientsPerPage
+  const indexOfFirstPatient = indexOfLastPatient - patientsPerPage
+  const currentPatients = filteredPatients.slice(indexOfFirstPatient, indexOfLastPatient)
+
+  // Resetear a página 1 cuando cambian los filtros o búsqueda
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filters])
 
   const hasActiveFilters = filters.status !== 'all' || filters.formsStatus !== 'all'
 
@@ -557,10 +640,15 @@ export default function PatientsPage() {
 
         {/* Patients Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-900">
               Pacientes ({filteredPatients.length})
             </h3>
+            {filteredPatients.length > patientsPerPage && (
+              <div className="text-sm text-gray-600">
+                Mostrando {indexOfFirstPatient + 1}-{Math.min(indexOfLastPatient, filteredPatients.length)} de {filteredPatients.length}
+              </div>
+            )}
           </div>
           
           <div className="overflow-x-auto">
@@ -591,7 +679,7 @@ export default function PatientsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredPatients.map((patient) => (
+                {currentPatients.map((patient) => (
                   <tr key={patient.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 font-mono">
@@ -697,6 +785,95 @@ export default function PatientsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Paginación */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Anterior
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Siguiente
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Mostrando <span className="font-medium">{indexOfFirstPatient + 1}</span> a{' '}
+                    <span className="font-medium">{Math.min(indexOfLastPatient, filteredPatients.length)}</span> de{' '}
+                    <span className="font-medium">{filteredPatients.length}</span> resultados
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Anterior</span>
+                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    
+                    {/* Números de página */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                      // Mostrar siempre la primera y última página
+                      // Mostrar páginas alrededor de la actual
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === page
+                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        )
+                      } else if (page === currentPage - 2 || page === currentPage + 2) {
+                        // Mostrar puntos suspensivos
+                        return (
+                          <span key={page} className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            ...
+                          </span>
+                        )
+                      }
+                      return null
+                    })}
+                    
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <span className="sr-only">Siguiente</span>
+                      <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
 
           {filteredPatients.length === 0 && (
             <div className="text-center py-12">
@@ -1156,6 +1333,183 @@ export default function PatientsPage() {
                 </button>
               </div>
             </form>
+        </Box>
+      </Modal>
+
+      {/* Modal de confirmación para eliminar paciente */}
+      <Modal
+        open={showDeleteModal}
+        onClose={cancelDelete}
+        aria-labelledby="delete-patient-modal-title"
+        aria-describedby="delete-patient-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '520px' },
+            bgcolor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            outline: 'none',
+          }}
+        >
+          <div className="p-6 space-y-5">
+            {/* Header */}
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 p-3 bg-red-100 rounded-full">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  Confirmar eliminación
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Esta acción no se puede deshacer
+                </p>
+              </div>
+              <button
+                onClick={cancelDelete}
+                disabled={verifyingPassword}
+                className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Advertencia */}
+            <div className="p-4 bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 rounded-r-lg">
+              <div className="flex items-start">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-red-900 mb-1">
+                    ¡Advertencia importante!
+                  </p>
+                  <p className="text-sm text-red-800">
+                    Estás a punto de eliminar permanentemente un paciente y todos sus datos asociados. 
+                    Esta operación es <strong>irreversible</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Campo de contraseña */}
+            <div className="space-y-2">
+              <label htmlFor="delete-password" className="block text-sm font-semibold text-gray-700">
+                Ingresa tu contraseña para confirmar <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="delete-password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => {
+                  setDeletePassword(e.target.value)
+                  setDeletePasswordError('')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !verifyingPassword && deletePassword) {
+                    verifyPasswordAndDelete()
+                  }
+                }}
+                placeholder="Tu contraseña de administrador"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={verifyingPassword}
+                autoFocus
+              />
+              {deletePasswordError && (
+                <div className="flex items-center space-x-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{deletePasswordError}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Botones */}
+            <div className="flex space-x-3 pt-2">
+              <button
+                onClick={cancelDelete}
+                disabled={verifyingPassword}
+                className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={verifyPasswordAndDelete}
+                disabled={verifyingPassword || !deletePassword}
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-md hover:shadow-lg"
+              >
+                {verifyingPassword ? (
+                  <span className="flex items-center justify-center">
+                    <span className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></span>
+                    Verificando...
+                  </span>
+                ) : (
+                  'Eliminar Paciente'
+                )}
+              </button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Modal de éxito/error */}
+      <Modal
+        open={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false)
+          setIsError(false)
+        }}
+        aria-labelledby="success-modal-title"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '420px' },
+            bgcolor: 'white',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            outline: 'none',
+          }}
+        >
+          <div className="p-6">
+            <div className="text-center">
+              <div className={`mx-auto flex items-center justify-center h-20 w-20 rounded-full mb-4 ${
+                isError ? 'bg-red-100' : 'bg-green-100'
+              }`}>
+                {isError ? (
+                  <AlertCircle className="h-10 w-10 text-red-600" />
+                ) : (
+                  <CheckCircle className="h-10 w-10 text-green-600" />
+                )}
+              </div>
+              <h3 className={`text-2xl font-bold mb-2 ${
+                isError ? 'text-red-900' : 'text-gray-900'
+              }`}>
+                {isError ? 'Error' : '¡Operación exitosa!'}
+              </h3>
+              <p className="text-gray-600 mb-6 text-base">
+                {successMessage}
+              </p>
+              <button
+                onClick={() => {
+                  setShowSuccessModal(false)
+                  setIsError(false)
+                }}
+                className={`w-full px-6 py-3 rounded-lg transition-all font-semibold shadow-md hover:shadow-lg ${
+                  isError
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'
+                }`}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
         </Box>
       </Modal>
     </div>

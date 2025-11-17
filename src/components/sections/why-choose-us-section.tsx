@@ -4,8 +4,8 @@ import { Card, CardContent } from '@/components/ui/card'
 const features = [
   {
     icon: Clock,
-    title: 'Cuidado 24/7',
-    description: 'Personal médico y de enfermería disponible las 24 horas del día, los 7 días de la semana. Monitoreo constante para garantizar la seguridad y bienestar de nuestros residentes.',
+    title: 'Cuidado personalizado',
+    description: 'Personal médico y de enfermería disponible. Monitoreo constante para garantizar la seguridad y bienestar de nuestros residentes.',
     color: 'text-blue-600 bg-blue-100',
     stats: '24h',
     highlight: 'Atención continua'
@@ -13,9 +13,9 @@ const features = [
   {
     icon: Building,
     title: 'Instalaciones Modernas',
-    description: 'Equipamiento de última generación en un ambiente cálido y familiar. Habitaciones privadas, áreas comunes amplias y jardines terapéuticos para el bienestar integral.',
+    description: 'Equipamiento moderno dentro de un ambiente cálido y familiar. Áreas comunes amplias y jardines terapéuticos para el bienestar integral.',
     color: 'text-green-600 bg-green-100',
-    stats: '5000m²',
+    stats: '250m²',
     highlight: 'Espacio adaptado'
   },
   {
@@ -23,7 +23,7 @@ const features = [
     title: 'Personal Especializado',
     description: 'Equipo multidisciplinar con experiencia en cuidado geriátrico: médicos geriatras, enfermeras especializadas, fisioterapeutas y terapeutas ocupacionales.',
     color: 'text-purple-600 bg-purple-100',
-    stats: '50+',
+    stats: '10+',
     highlight: 'Profesionales expertos'
   },
   {
@@ -31,7 +31,7 @@ const features = [
     title: 'Atención Personalizada',
     description: 'Planes de cuidado individualizados para cada residente. Evaluación continua de necesidades y adaptación de servicios para optimizar la calidad de vida.',
     color: 'text-red-600 bg-red-100',
-    stats: '1:4',
+    stats: '1:3',
     highlight: 'Ratio cuidador-residente'
   }
 ]

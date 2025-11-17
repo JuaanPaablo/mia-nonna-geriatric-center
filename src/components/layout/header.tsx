@@ -82,14 +82,6 @@ export function Header() {
             <Button variant="outline" asChild>
               <Link href="#contacto">Solicitar Información</Link>
             </Button>
-            <Button variant="healthcare" asChild>
-              <Link 
-                href="/login" 
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Portal Admin
-              </Link>
-            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -137,11 +129,6 @@ export function Header() {
             <Button variant="outline" className="w-full" asChild>
               <Link href="#contacto" onClick={() => setMobileMenuOpen(false)}>
                 Solicitar Información
-              </Link>
-            </Button>
-            <Button variant="healthcare" className="w-full" asChild>
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                Portal Admin
               </Link>
             </Button>
           </div>

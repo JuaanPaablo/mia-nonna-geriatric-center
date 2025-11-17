@@ -85,6 +85,9 @@ const departments = [
 
 
 export function StaffSection() {
+  // Oculto temporalmente hasta tener las imágenes del equipo
+  return null
+  
   return (
     <section id="personal" className="py-16 lg:py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -102,76 +105,78 @@ export function StaffSection() {
           </p>
         </div>
 
-        {/* Leadership team */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
-            Equipo Directivo
-          </h3>
-          
-          <div className="grid lg:grid-cols-3 gap-8">
-            {leadership.map((member, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300">
-                <div className="relative">
-                  <div className="aspect-[3/4] overflow-hidden rounded-t-lg">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      width={300}
-                      height={400}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-white/90 text-gray-800">
-                      {member.experience} exp.
-                    </Badge>
-                  </div>
-                </div>
-                
-                <CardContent className="p-6 space-y-4">
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-900 mb-1">
-                      {member.name}
-                    </h4>
-                    <p className="text-primary font-semibold mb-1">
-                      {member.position}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {member.specialty}
-                    </p>
-                  </div>
-                  
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {member.description}
-                  </p>
-                  
-                  <div className="space-y-2">
-                    <h5 className="font-semibold text-gray-900 text-sm">Credenciales:</h5>
-                    <div className="flex flex-wrap gap-1">
-                      {member.credentials.map((credential, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {credential}
-                        </Badge>
-                      ))}
+        {/* Leadership team - Oculto temporalmente hasta tener las imágenes */}
+        {false && (
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
+              Equipo Directivo
+            </h3>
+            
+            <div className="grid lg:grid-cols-3 gap-8">
+              {leadership.map((member, index) => (
+                <Card key={index} className="group hover:shadow-xl transition-all duration-300">
+                  <div className="relative">
+                    <div className="aspect-[3/4] overflow-hidden rounded-t-lg">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        width={300}
+                        height={400}
+                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-white/90 text-gray-800">
+                        {member.experience} exp.
+                      </Badge>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <h5 className="font-semibold text-gray-900 text-sm">Logros destacados:</h5>
-                    <ul className="text-xs text-gray-600 space-y-1">
-                      {member.achievements.map((achievement, idx) => (
-                        <li key={idx} className="flex items-center gap-2">
-                          <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
-                          {achievement}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent className="p-6 space-y-4">
+                    <div>
+                      <h4 className="text-xl font-bold text-gray-900 mb-1">
+                        {member.name}
+                      </h4>
+                      <p className="text-primary font-semibold mb-1">
+                        {member.position}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {member.specialty}
+                      </p>
+                    </div>
+                    
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {member.description}
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <h5 className="font-semibold text-gray-900 text-sm">Credenciales:</h5>
+                      <div className="flex flex-wrap gap-1">
+                        {member.credentials.map((credential, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {credential}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h5 className="font-semibold text-gray-900 text-sm">Logros destacados:</h5>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        {member.achievements.map((achievement, idx) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <Star className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                            {achievement}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   )

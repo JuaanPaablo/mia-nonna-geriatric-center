@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Users, MessageSquare, LogOut } from 'lucide-react'
 import AuthGuard from '@/components/auth/AuthGuard'
-import DataCleaner from '@/components/admin/DataCleaner'
 import { supabase } from '@/lib/supabase'
 
 export default function AdminLayout({
@@ -27,10 +26,6 @@ export default function AdminLayout({
     }
   }
 
-  const handleDataCleared = () => {
-    // Recargar la página para actualizar todos los datos
-    window.location.reload()
-  }
 
   return (
     <AuthGuard>
@@ -86,7 +81,7 @@ export default function AdminLayout({
                 <h2 className="text-lg font-semibold text-gray-900">Panel de Administración</h2>
               </div>
               <div className="flex items-center space-x-4">
-                <DataCleaner onDataCleared={handleDataCleared} />
+                {/* Panel de administración */}
               </div>
             </div>
           </div>

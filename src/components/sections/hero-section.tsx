@@ -30,10 +30,6 @@ export function HeroSection() {
                 <div className="text-2xl font-bold text-gray-900">5+</div>
                 <div className="text-sm text-gray-600">Años de experiencia</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">24/7</div>
-                <div className="text-sm text-gray-600">Atención médica</div>
-              </div>
             </div>
           </div>
 

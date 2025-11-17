@@ -98,3 +98,17 @@ export const createServerClient = () => {
     }
   })
 }
+
+// Helper para obtener URL pública de imágenes en buckets públicos
+export const getPublicImageUrl = (bucketName: string, filePath: string): string | null => {
+  if (!supabaseUrl) return null;
+  
+  // Para buckets públicos, Supabase genera URLs públicas automáticamente
+  // Formato: {supabaseUrl}/storage/v1/object/public/{bucketName}/{filePath}
+  return `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
+};
+
+// Helper para obtener URL pública de imágenes de instalaciones
+export const getFacilityImageUrl = (fileName: string): string | null => {
+  return getPublicImageUrl('facilities-images', fileName);
+};

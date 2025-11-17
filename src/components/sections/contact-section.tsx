@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { contactFormSchema, type ContactFormData } from '@/lib/validations'
 import { generateWhatsAppUrl } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import { 
   Phone, 
   Mail, 
@@ -30,7 +31,7 @@ const contactInfo = [
     icon: Phone,
     title: 'Teléfono',
     value: '+593 99 831 3608',
-    description: 'Atención telefónica 24/7',
+    description: 'Atención telefónica',
     action: 'whatsapp'
   },
   {
@@ -63,10 +64,12 @@ const schedule = [
 ]
 
 const careTypes = [
-  { value: 'full_time', label: 'Tiempo Completo (Residencia permanente)' },
-  { value: 'day_care', label: 'Centro de Día (Horario diurno)' },
-  { value: 'respite', label: 'Respiro Familiar (Estancia temporal)' },
-  { value: 'consultation', label: 'Consulta informativa' }
+  { value: 'Cuidado Básico', label: 'Cuidado Básico' },
+  { value: 'Cuidado Intermedio', label: 'Cuidado Intermedio' },
+  { value: 'Cuidado Avanzado', label: 'Cuidado Avanzado' },
+  { value: 'Cuidado Especializado', label: 'Cuidado Especializado' },
+  { value: 'Rehabilitación', label: 'Rehabilitación' },
+  { value: 'Otro', label: 'Otro' }
 ]
 
 export function ContactSection() {
@@ -90,16 +93,43 @@ export function ContactSection() {
     setIsSubmitting(true)
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // In a real app, you would submit to your API
-      console.log('Form data:', data)
+      if (!supabase) {
+        throw new Error('Supabase no está configurado')
+      }
+
+      // Preparar los datos para insertar en la base de datos
+      // Los campos opcionales se envían como null si están vacíos
+      // El careType ya viene con el valor correcto de la BD
+      const contactData = {
+        family_name: data.familyName,
+        phone: data.phone, // Ya viene validado con 10 números
+        email: data.email || null,
+        resident_name: data.residentName || null,
+        resident_age: data.residentAge || null,
+        care_type: data.careType || null, // Ya viene con el valor correcto
+        message: data.message || null,
+        status: 'Nuevo', // Estado inicial (según el CHECK constraint de la BD)
+        whatsapp_sent: false,
+        notes: null // Notas vacías inicialmente
+      }
+
+      // Insertar en la base de datos
+      const { error } = await supabase
+        .from('contact_forms')
+        .insert([contactData])
+
+      if (error) {
+        console.error('Error guardando contacto:', error)
+        throw error
+      }
+
+      console.log('Contacto guardado exitosamente:', contactData)
       
       setIsSubmitted(true)
       reset()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error)
+      alert('Hubo un error al enviar tu solicitud. Por favor, intenta nuevamente o contáctanos directamente por WhatsApp.')
     } finally {
       setIsSubmitting(false)
     }
@@ -265,9 +295,19 @@ export function ContactSection() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+593 9XX XXX XXX"
-                        {...register('phone')}
+                        placeholder="0998313608"
+                        maxLength={10}
+                        {...register('phone', {
+                          onChange: (e) => {
+                            // Solo permitir números y limitar a 10 dígitos
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                            if (value !== e.target.value) {
+                              setValue('phone', value, { shouldValidate: true })
+                            }
+                          }
+                        })}
                       />
+                      <p className="text-xs text-gray-500">Ingresa 10 números sin espacios ni guiones</p>
                       {errors.phone && (
                         <p className="text-sm text-red-600">{errors.phone.message}</p>
                       )}
@@ -328,12 +368,16 @@ export function ContactSection() {
                       Tipo de cuidado <span className="text-red-500">*</span>
                     </Label>
                     <Select onValueChange={(value) => setValue('careType', value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white border-gray-300">
                         <SelectValue placeholder="Selecciona el tipo de cuidado" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white border-gray-200 shadow-lg">
                         {careTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
+                          <SelectItem 
+                            key={type.value} 
+                            value={type.value}
+                            className="bg-white text-gray-900 hover:bg-gray-100 focus:bg-gray-100 cursor-pointer"
+                          >
                             {type.label}
                           </SelectItem>
                         ))}
@@ -359,34 +403,11 @@ export function ContactSection() {
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      id="acceptTerms"
-                      type="checkbox"
-                      className="rounded border-gray-300"
-                      {...register('acceptTerms')}
-                    />
-                    <Label htmlFor="acceptTerms" className="text-sm text-gray-700">
-                      Acepto los{' '}
-                      <a href="#" className="text-primary hover:underline">
-                        términos y condiciones
-                      </a>{' '}
-                      y la{' '}
-                      <a href="#" className="text-primary hover:underline">
-                        política de privacidad
-                      </a>
-                      . <span className="text-red-500">*</span>
-                    </Label>
-                  </div>
-                  {errors.acceptTerms && (
-                    <p className="text-sm text-red-600">{errors.acceptTerms.message}</p>
-                  )}
-
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       type="submit"
-                      variant="healthcare"
-                      className="flex-1"
+                      variant="default"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -406,7 +427,7 @@ export function ContactSection() {
                       type="button"
                       variant="outline"
                       onClick={handleWhatsAppContact}
-                      className="flex-1"
+                      className="flex-1 border-gray-300 hover:bg-gray-50"
                     >
                       <MessageCircle className="h-4 w-4 mr-2" />
                       WhatsApp directo

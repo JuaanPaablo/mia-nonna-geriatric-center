@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { getFacilityImageUrl } from '@/lib/supabase'
 import { 
   Home, 
   Utensils, 
@@ -20,28 +21,33 @@ import {
   TreePine
 } from 'lucide-react'
 
+// Configuración de instalaciones con nombres de archivo en Supabase Storage
+// Las imágenes deben estar en el bucket 'facilities-images' de Supabase
 const facilities = [
   {
     id: 1,
-    title: 'Habitaciones Privadas',
+    title: 'Un lugar cómodo',
     description: 'Espacios cómodos y adaptados con baño privado, mobiliario ergonómico y sistema de llamada de emergencia.',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    imageFile: 'entrada.jpg', // Archivo del bucket de Supabase Storage
+    fallbackImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', // Fallback si no existe en Storage
     category: 'Alojamiento',
     features: ['Baño privado', 'Mobiliario adaptado', 'Llamada de emergencia', 'Aire acondicionado']
   },
   {
     id: 2,
-    title: 'Comedor Principal',
-    description: 'Ambiente acogedor para las comidas con capacidad para todos los residentes y menús adaptados.',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    title: 'Cocina',
+    description: 'Cocina equipada con todo lo necesario para preparar comidas saludables y deliciosas.',
+    imageFile: 'cocina.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     category: 'Alimentación',
     features: ['Ambiente familiar', 'Menús adaptados', 'Ayuda personalizada', 'Horarios flexibles']
   },
   {
     id: 3,
-    title: 'Sala de Fisioterapia',
+    title: 'Sala de Entrenamiento',
     description: 'Equipamiento especializado para rehabilitación física y mantenimiento de la movilidad.',
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    imageFile: 'bicicletas.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     category: 'Salud',
     features: ['Equipos modernos', 'Fisioterapeuta especializado', 'Tratamientos individuales', 'Seguimiento personalizado']
   },
@@ -49,7 +55,8 @@ const facilities = [
     id: 4,
     title: 'Jardín Terapéutico',
     description: 'Espacio verde seguro para actividades al aire libre y terapia con la naturaleza.',
-    image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    imageFile: 'areaverde2.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     category: 'Exterior',
     features: ['Senderos accesibles', 'Zonas de descanso', 'Plantas terapéuticas', 'Actividades grupales']
   },
@@ -57,19 +64,27 @@ const facilities = [
     id: 5,
     title: 'Sala de Actividades',
     description: 'Espacio multiusos para talleres, actividades sociales y entretenimiento adaptado.',
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    imageFile: 'juegos.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     category: 'Social',
     features: ['Talleres diarios', 'Entretenimiento', 'Socialización', 'Estimulación cognitiva']
   },
   {
     id: 6,
-    title: 'Enfermería',
-    description: 'Centro médico equipado para atención sanitaria inmediata y seguimiento de tratamientos.',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    title: 'Seguridad',
+    description: 'Sistema de seguridad integral con vigilancia 24 horas para garantizar la protección y tranquilidad de todos los residentes.',
+    imageFile: 'vigilancia.jpg',
+    fallbackImage: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     category: 'Salud',
-    features: ['Atención 24h', 'Equipos médicos', 'Farmacia', 'Consultas médicas']
+    features: ['Vigilancia 24h', 'Sistemas de monitoreo', 'Control de acceso', 'Protocolos de emergencia']
   }
 ]
+
+// Función helper para obtener la URL de la imagen (Supabase Storage o fallback)
+const getImageUrl = (facility: typeof facilities[0]): string => {
+  const storageUrl = getFacilityImageUrl(facility.imageFile);
+  return storageUrl || facility.fallbackImage;
+}
 
 const amenities = [
   {
@@ -103,9 +118,10 @@ export function FacilitiesSection() {
 
   const categories = ['Todos', ...Array.from(new Set(facilities.map(f => f.category)))]
   
-  const filteredFacilities = selectedCategory === 'Todos' 
+  const filteredFacilities = (selectedCategory === 'Todos' 
     ? facilities 
     : facilities.filter(f => f.category === selectedCategory)
+  ).filter(f => f.id !== selectedFacility.id) // Excluir la instalación seleccionada del grid
 
   return (
     <section id="instalaciones" className="py-16 lg:py-24 bg-gray-50">
@@ -124,20 +140,6 @@ export function FacilitiesSection() {
           </p>
         </div>
 
-        {/* Category filters */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(category)}
-              className="rounded-full"
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
 
         {/* Main facility showcase */}
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
@@ -145,7 +147,7 @@ export function FacilitiesSection() {
           <div className="relative">
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
               <Image
-                src={selectedFacility.image}
+                src={getImageUrl(selectedFacility)}
                 alt={selectedFacility.title}
                 width={600}
                 height={450}
@@ -201,7 +203,7 @@ export function FacilitiesSection() {
             >
               <div className="aspect-[4/3] relative overflow-hidden rounded-t-lg">
                 <Image
-                  src={facility.image}
+                  src={getImageUrl(facility)}
                   alt={facility.title}
                   width={400}
                   height={300}

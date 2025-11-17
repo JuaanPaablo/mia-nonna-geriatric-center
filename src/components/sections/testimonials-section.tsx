@@ -98,6 +98,9 @@ const testimonials = [
 ]
 
 export function TestimonialsSection() {
+  // Oculto temporalmente hasta tener las imágenes de los testimonios
+  return null
+
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState('Todos')
 

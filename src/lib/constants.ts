@@ -9,7 +9,7 @@ export const APP_INFO = {
     phone: '+593 99 831 3608',
     email: 'info@mianonna.com',
     whatsapp: '+593 99 831 3608',
-    address: 'Calle de la Salud, 123, 28001 Madrid, España',
+    address: 'Pilanquí, Ibarra, Imbabura',
   },
   socialMedia: {
     facebook: 'https://facebook.com/mianonna',
@@ -120,7 +120,7 @@ export const CONTACT_STATUSES = [
 
 // Care Types
 export const CARE_TYPES = [
-  { value: 'full_time', label: 'Tiempo Completo', description: 'Cuidado 24/7 con residencia permanente' },
+  { value: 'full_time', label: 'Tiempo Completo', description: 'Cuidado continuo' },
   { value: 'day_care', label: 'Centro de Día', description: 'Cuidado durante el día, regreso a casa por la noche' },
   { value: 'respite', label: 'Respiro Familiar', description: 'Cuidado temporal para descanso de familiares' },
 ] as const
@@ -145,7 +145,7 @@ export const SERVICE_CATEGORIES = [
 // Healthcare Services
 export const HEALTHCARE_SERVICES = [
   {
-    name: 'Atención Médica 24/7',
+    name: 'Atención Médica',
     description: 'Supervisión médica constante con personal especializado en geriatría',
     icon: 'Stethoscope',
     category: 'medical',
@@ -191,8 +191,8 @@ export const HEALTHCARE_SERVICES = [
 // Why Choose Us Features
 export const WHY_CHOOSE_US = [
   {
-    title: 'Cuidado 24/7',
-    description: 'Personal médico y de enfermería disponible las 24 horas del día',
+    title: 'Cuidado continuo',
+    description: 'Personal médico y de enfermería disponible',
     icon: 'Clock',
     color: 'primary',
   },

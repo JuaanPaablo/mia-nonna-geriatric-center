@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: 'Mia Nonna - Centro Geriátrico | Cuidado Profesional para Personas Mayores',
     template: '%s | Mia Nonna Centro Geriátrico',
   },
-  description: 'Centro geriátrico Mia Nonna ofrece cuidado profesional 24/7 para personas mayores. Servicios de residencia, centro de día y respiro familiar con personal especializado en Madrid.',
+  description: 'Centro geriátrico Mia Nonna ofrece cuidado profesional para personas mayores. Servicios de residencia, centro de día y respiro familiar con personal especializado en Madrid.',
   keywords: [
     'centro geriátrico',
     'residencia mayores',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     locale: 'es_ES',
     url: 'https://mianonna.com',
     title: 'Mia Nonna - Centro Geriátrico de Confianza en Madrid',
-    description: 'Cuidado profesional y cariñoso para personas mayores. Atención médica 24/7, instalaciones modernas y personal especializado. Tu familia merece el mejor cuidado.',
+    description: 'Cuidado profesional y cariñoso para personas mayores. Atención médica, instalaciones modernas y personal especializado. Tu familia merece el mejor cuidado.',
     siteName: 'Mia Nonna Centro Geriátrico',
     images: [
       {
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Mia Nonna - Centro Geriátrico de Confianza',
-    description: 'Cuidado profesional y cariñoso para personas mayores en Madrid. Atención 24/7 con personal especializado.',
+    description: 'Cuidado profesional y cariñoso para personas mayores en Madrid. Atención con personal especializado.',
     images: ['/og-image.jpg'],
     creator: '@mianonna',
   },
@@ -115,7 +115,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "MedicalOrganization",
               "name": "Mia Nonna Centro Geriátrico",
-              "description": "Centro geriátrico especializado en el cuidado integral de personas mayores con servicios médicos 24/7.",
+              "description": "Centro geriátrico especializado en el cuidado integral de personas mayores con servicios médicos.",
               "url": "https://mianonna.com",
               "logo": "https://mianonna.com/logo.png",
               "image": "https://mianonna.com/og-image.jpg",
@@ -123,11 +123,9 @@ export default function RootLayout({
               "email": "info@mianonna.com",
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "Calle de la Salud, 123",
-                "addressLocality": "Madrid",
-                "addressRegion": "Madrid",
-                "postalCode": "28001",
-                "addressCountry": "ES"
+                "streetAddress": "Pilanquí, Ibarra",
+                "addressLocality": "Ibarra",
+                "addressRegion": "Imbabura",
               },
               "geo": {
                 "@type": "GeoCoordinates",
