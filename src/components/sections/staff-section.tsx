@@ -2,11 +2,11 @@ import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  Stethoscope, 
-  Heart, 
-  Activity, 
-  Users, 
+import {
+  Stethoscope,
+  Heart,
+  Activity,
+  Users,
   Star,
   Award,
   Clock,
@@ -22,7 +22,7 @@ const leadership = [
     specialty: 'Geriatría y Gerontología',
     experience: '15 años',
     image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'Especialista en medicina geriátrica con amplia experiencia en cuidados de larga duración. Licenciada en Medicina por la Universidad Complutense de Madrid.',
+    description: 'Especialista en medicina geriátrica con amplia experiencia en cuidados de larga duración. Licenciada en Medicina por la Universidad Complutense de Ibarra.',
     credentials: ['Doctora en Medicina', 'Especialista en Geriatría', 'Máster en Gerontología'],
     achievements: ['Premio Nacional de Geriatría 2019', '200+ publicaciones científicas']
   },
@@ -87,7 +87,7 @@ const departments = [
 export function StaffSection() {
   // Oculto temporalmente hasta tener las imágenes del equipo
   return null
-  
+
   return (
     <section id="personal" className="py-16 lg:py-24 bg-white">
       <div className="container mx-auto px-4">
@@ -100,7 +100,7 @@ export function StaffSection() {
             Profesionales dedicados a tu bienestar
           </h2>
           <p className="text-lg text-gray-600 leading-relaxed">
-            Contamos con un equipo multidisciplinar de profesionales especializados en geriatría, 
+            Contamos con un equipo multidisciplinar de profesionales especializados en geriatría,
             comprometidos con proporcionar el mejor cuidado y atención personalizada.
           </p>
         </div>
@@ -111,7 +111,7 @@ export function StaffSection() {
             <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">
               Equipo Directivo
             </h3>
-            
+
             <div className="grid lg:grid-cols-3 gap-8">
               {leadership.map((member, index) => (
                 <Card key={index} className="group hover:shadow-xl transition-all duration-300">
@@ -131,7 +131,7 @@ export function StaffSection() {
                       </Badge>
                     </div>
                   </div>
-                  
+
                   <CardContent className="p-6 space-y-4">
                     <div>
                       <h4 className="text-xl font-bold text-gray-900 mb-1">
@@ -144,11 +144,11 @@ export function StaffSection() {
                         {member.specialty}
                       </p>
                     </div>
-                    
+
                     <p className="text-sm text-gray-700 leading-relaxed">
                       {member.description}
                     </p>
-                    
+
                     <div className="space-y-2">
                       <h5 className="font-semibold text-gray-900 text-sm">Credenciales:</h5>
                       <div className="flex flex-wrap gap-1">
@@ -159,7 +159,7 @@ export function StaffSection() {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <h5 className="font-semibold text-gray-900 text-sm">Logros destacados:</h5>
                       <ul className="text-xs text-gray-600 space-y-1">

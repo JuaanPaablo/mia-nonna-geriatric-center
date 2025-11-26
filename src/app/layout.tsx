@@ -3,13 +3,13 @@ import { Inter, Merriweather } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
 })
 
-const merriweather = Merriweather({ 
+const merriweather = Merriweather({
   subsets: ['latin'],
   variable: '--font-merriweather',
   weight: ['300', '400', '700', '900'],
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     default: 'Mia Nonna - Centro Geriátrico | Cuidado Profesional para Personas Mayores',
     template: '%s | Mia Nonna Centro Geriátrico',
   },
-  description: 'Centro geriátrico Mia Nonna ofrece cuidado profesional para personas mayores. Servicios de residencia, centro de día y respiro familiar con personal especializado en Madrid.',
+  description: 'Centro geriátrico Mia Nonna ofrece cuidado profesional para personas mayores. Servicios de residencia, centro de día y respiro familiar con personal especializado en Ibarra.',
   icons: {
     icon: '/images/nonna.jpg',
     apple: '/images/nonna.jpg',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     'residencia mayores',
     'centro día',
     'cuidado personas mayores',
-    'geriatría Madrid',
+    'geriatría Ibarra',
     'residencia ancianos',
     'cuidados especializados',
     'atención geriátrica',
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_ES',
     url: 'https://mianonna.com',
-    title: 'Mia Nonna - Centro Geriátrico de Confianza en Madrid',
+    title: 'Mia Nonna - Centro Geriátrico de Confianza en Ibarra',
     description: 'Cuidado profesional y cariñoso para personas mayores. Atención médica, instalaciones modernas y personal especializado. Tu familia merece el mejor cuidado.',
     siteName: 'Mia Nonna Centro Geriátrico',
     images: [
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Mia Nonna - Centro Geriátrico de Confianza',
-    description: 'Cuidado profesional y cariñoso para personas mayores en Madrid. Atención con personal especializado.',
+    description: 'Cuidado profesional y cariñoso para personas mayores en Ibarra. Atención con personal especializado.',
     images: ['/og-image.jpg'],
     creator: '@mianonna',
   },
@@ -109,7 +109,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#2d5016" />
         <meta name="msapplication-TileColor" content="#2d5016" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        
+
         {/* Structured Data for Healthcare Organization */}
         <script
           type="application/ld+json"
@@ -147,7 +147,7 @@ export default function RootLayout({
               ],
               "medicalSpecialty": [
                 "Geriatrics",
-                "Physiotherapy", 
+                "Physiotherapy",
                 "Occupational Therapy",
                 "Nutrition"
               ],
@@ -173,7 +173,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body 
+      <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
           inter.variable,
