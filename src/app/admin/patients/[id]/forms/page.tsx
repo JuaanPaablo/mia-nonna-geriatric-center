@@ -30,23 +30,22 @@ interface PatientForm {
   updated_at: string
 }
 
-// Definición de los 15 formularios requeridos
+// Definición de los 14 formularios requeridos
 const REQUIRED_FORMS = [
-  { type: 'admission', name: 'Formulario de Admisión', description: 'Datos básicos de ingreso del paciente' },
-  { type: 'medical_evaluation', name: 'Evaluación Médica Inicial', description: 'Evaluación médica completa del paciente' },
-  { type: 'nursing_evaluation', name: 'Evaluación de Enfermería', description: 'Evaluación de cuidados de enfermería' },
-  { type: 'psychological_evaluation', name: 'Evaluación Psicológica', description: 'Evaluación del estado psicológico' },
-  { type: 'nutritional_evaluation', name: 'Evaluación Nutricional', description: 'Evaluación del estado nutricional' },
-  { type: 'social_evaluation', name: 'Evaluación Social', description: 'Evaluación del entorno social' },
-  { type: 'functional_evaluation', name: 'Evaluación Funcional', description: 'Evaluación de capacidades funcionales' },
-  { type: 'informed_consent', name: 'Consentimiento Informado', description: 'Consentimiento para tratamientos' },
-  { type: 'treatment_authorization', name: 'Autorización de Tratamiento', description: 'Autorización de procedimientos médicos' },
-  { type: 'medication_history', name: 'Historial de Medicamentos', description: 'Historial completo de medicamentos' },
-  { type: 'allergy_evaluation', name: 'Evaluación de Alergias', description: 'Evaluación de alergias conocidas' },
-  { type: 'care_plan', name: 'Plan de Cuidados', description: 'Plan de cuidados personalizado' },
-  { type: 'risk_assessment', name: 'Evaluación de Riesgos', description: 'Evaluación de riesgos y prevención' },
-  { type: 'image_consent', name: 'Consentimiento de Imágenes', description: 'Consentimiento para uso de imágenes' },
-  { type: 'discharge_evaluation', name: 'Evaluación de Alta', description: 'Evaluación previa al alta' },
+  { type: 'admission', name: 'Ficha N° 1 Información General. (Admisión e Ingreso)', description: 'Datos básicos de ingreso del paciente' },
+  { type: 'medical_evaluation', name: 'Ficha N°2 Valoración Social', description: 'Evaluación médica completa del paciente' },
+  { type: 'nursing_evaluation', name: 'Ficha N°3 Informe Social', description: 'Evaluación de cuidados de enfermería' },
+  { type: 'psychological_evaluation', name: 'Ficha N°4a Índice de Barthel', description: 'Evaluación del estado psicológico' },
+  { type: 'nutritional_evaluation', name: 'Ficha Nro. 4b Escala de Lawton y Brody', description: 'Evaluación del estado nutricional' },
+  { type: 'social_evaluation', name: 'Ficha Nro. 4c Mini Mental', description: 'Evaluación del entorno social' },
+  { type: 'functional_evaluation', name: 'Ficha Nro. 4d Escala de Depresión Geriátrica de Yessavage', description: 'Evaluación de capacidades funcionales' },
+  { type: 'informed_consent', name: 'Ficha N°4 Informe Psicológico', description: 'Consentimiento para tratamientos' },
+  { type: 'treatment_authorization', name: 'Ficha N°5 Referencia y Derivación', description: 'Autorización de procedimientos médicos' },
+  { type: 'medication_history', name: 'Ficha N° 6 Salida o Egreso', description: 'Historial completo de medicamentos' },
+  { type: 'allergy_evaluation', name: 'Ficha N° 7 Aceptación y Compromiso', description: 'Evaluación de alergias conocidas' },
+  { type: 'care_plan', name: 'Ficha N°8 Evolución', description: 'Plan de cuidados personalizado' },
+  { type: 'risk_assessment', name: 'Ficha N° 9 Plan de Intervención Individual Integral', description: 'Evaluación de riesgos y prevención' },
+  { type: 'image_consent', name: 'Ficha N°10 Ficha integral Registro de Evolución.', description: 'Consentimiento para uso de imágenes' },
 ]
 
 const STORAGE_BUCKET = 'patient-forms'
@@ -154,7 +153,7 @@ export default function PatientFormsPage() {
       const form = getForm(selectedForm)
       const fileExt = selectedFile.name.split('.').pop()
       const fileName = `${patientId}/${selectedForm}/${Date.now()}.${fileExt}`
-      
+
       // Si ya existe un archivo, eliminarlo primero
       if (form?.file_url) {
         // file_url ahora contiene la ruta completa del archivo
@@ -409,7 +408,7 @@ export default function PatientFormsPage() {
                               const { data, error } = await supabase.storage
                                 .from(STORAGE_BUCKET)
                                 .createSignedUrl(formData.file_url, 3600) // URL válida por 1 hora
-                              
+
                               if (error) throw error
                               if (data?.signedUrl) {
                                 window.open(data.signedUrl, '_blank')
@@ -431,7 +430,7 @@ export default function PatientFormsPage() {
                               const { data, error } = await supabase.storage
                                 .from(STORAGE_BUCKET)
                                 .createSignedUrl(formData.file_url, 3600) // URL válida por 1 hora
-                              
+
                               if (error) throw error
                               if (data?.signedUrl) {
                                 const link = document.createElement('a')

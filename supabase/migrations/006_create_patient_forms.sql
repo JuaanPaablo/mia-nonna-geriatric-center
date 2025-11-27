@@ -1,6 +1,6 @@
 -- Migración: Crear tabla para formularios de pacientes
 -- Fecha: 2024
--- Descripción: Esta migración crea la tabla patient_forms para almacenar los 15 formularios
+-- Descripción: Esta migración crea la tabla patient_forms para almacenar los 14 formularios
 --              requeridos para el ingreso de cada paciente.
 
 -- ============================================================================
@@ -14,7 +14,7 @@ BEGIN
 END $$;
 
 -- ============================================================================
--- Crear tipo ENUM para los tipos de formularios (15 formularios requeridos)
+-- Crear tipo ENUM para los tipos de formularios (14 formularios requeridos)
 -- ============================================================================
 DO $$ 
 BEGIN
@@ -33,8 +33,7 @@ BEGIN
       'allergy_evaluation',           -- 11. Evaluación de Alergias
       'care_plan',                    -- 12. Plan de Cuidados
       'risk_assessment',              -- 13. Evaluación de Riesgos
-      'image_consent',                -- 14. Consentimiento de Imágenes
-      'discharge_evaluation'          -- 15. Evaluación de Alta
+      'image_consent'                 -- 14. Consentimiento de Imágenes
     );
   END IF;
 END $$;
@@ -137,8 +136,8 @@ CREATE TRIGGER trigger_update_patient_forms_updated_at
 -- ============================================================================
 -- Agregar comentarios descriptivos
 -- ============================================================================
-COMMENT ON TABLE public.patient_forms IS 'Almacena los 15 formularios requeridos para el ingreso de cada paciente';
-COMMENT ON COLUMN public.patient_forms.form_type IS 'Tipo de formulario (1-15 formularios requeridos)';
+COMMENT ON TABLE public.patient_forms IS 'Almacena los 14 formularios requeridos para el ingreso de cada paciente';
+COMMENT ON COLUMN public.patient_forms.form_type IS 'Tipo de formulario (1-14 formularios requeridos)';
 COMMENT ON COLUMN public.patient_forms.status IS 'Estado del formulario: pendiente, completado, revisado';
 COMMENT ON COLUMN public.patient_forms.form_data IS 'Datos del formulario en formato JSON flexible';
 COMMENT ON COLUMN public.patient_forms.file_url IS 'URL del documento escaneado subido (Supabase Storage)';
